@@ -1,0 +1,3 @@
+[submodule "source/standard"]
+	path = source/standard
+	url = https://github.com/noxabellus/standard-lite
