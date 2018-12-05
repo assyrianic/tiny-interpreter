@@ -94,11 +94,18 @@ int main (int argc, char** args) {
   Interpreter_run(&I);
   printf("fib_i(%d) = %llu\n", N, *(uint64_t*) I.op_registers + RAX);
   printf("fib_s(%d) = %d\n", N, fib_s(N, (void*) fib_s));
+  
+  
+  // printf("Baseline speed test:\n");
+  // TimingResult timing_result_s = test_timing(10, 1000, [&] () { fib_s(N, (void*) fib_s); });
+  // printf("Baseline Timing result: "); timing_result_s.print(10); putchar('\n');
+
 
 
   Interpreter_clear(&I);
-  TimingResult timing_result = test_timing(10, 1000, [&] () { Interpreter_run(&I); }, [&] () { Interpreter_clear(&I); }, true, false);
-  printf("Timing result: "); timing_result.print(10); putchar('\n');
+  printf("Interpreter speed test:\n");
+  TimingResult timing_result_i = test_timing(10, 1000, [&] () { Interpreter_run(&I); }, [&] () { Interpreter_clear(&I); }, true, false);
+  printf("Interpreter Timing result: "); timing_result_i.print(10); putchar('\n');
 
   
   Interpreter_dispose(&I);
