@@ -261,17 +261,44 @@ void* Interpreter_advance (Interpreter* i, int64_t offset) {
 
 
 
-inline extern
-bool Interpreter_execute (Interpreter* i) {
-  uint8_t* op_code = Interpreter_advance(i, 1);
+extern
+void Interpreter_run (Interpreter* i) {
+  static void* dispatch_table [INSTRUCTION_COUNT] = {
+    &&NO_OP,
 
-  switch (*op_code) {
-    case NO_OP: {
+    &&LIT8, &&LIT4, &&LIT2, &&LIT1,
+
+    &&CLR8, &&CLR4, &&CLR2, &&CLR1,
+
+    &&MOV8, &&MOV4, &&MOV2, &&MOV1,
+
+    &&ADD8, &&ADD4, &&ADD2, &&ADD1,
+    &&SUB8, &&SUB4, &&SUB2, &&SUB1,
+
+    &&CMP8, &&CMP4, &&CMP2, &&CMP1,
+    &&JMP, &&JEQ, &&JNE, &&JGE, &&JLE, &&JGT, &&JLT,
+
+    &&PRINT8, &&PRINT4, &&PRINT2, &&PRINT1,
+
+    &&LOAD8, &&LOAD4, &&LOAD2, &&LOAD1,
+    &&STORE8, &&STORE4, &&STORE2, &&STORE1,
+    &&PUSH8, &&PUSH4, &&PUSH2, &&PUSH1,
+    &&POP8, &&POP4, &&POP2, &&POP1,
+
+    &&CALL, &&RET, &&HALT,
+  };
+
+  #define DISPATCH goto *dispatch_table[*(uint8_t*) Interpreter_advance(i, 1)]
+
+  DISPATCH;
+
+  while (true) {
+    NO_OP: {
       m_debug_message("NO_OP");
-    } break;
+    } DISPATCH;
 
 
-    case LIT8: {
+    LIT8: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 8);
       
@@ -280,9 +307,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *l;
 
       m_debug_message("LIT8 %s, 0x%016llx", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case LIT4: {
+    LIT4: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 4);
       
@@ -291,9 +318,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *l;
 
       m_debug_message("LIT4 %s, 0x%08x", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case LIT2: {
+    LIT2: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 2);
       
@@ -302,9 +329,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *l;
 
       m_debug_message("LIT2 %s, 0x%04x", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case LIT1: {
+    LIT1: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 1);
       
@@ -313,10 +340,10 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *l;
 
       m_debug_message("LIT1 %s, 0x%02x", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
 
-    case CLR8: {
+    CLR8: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 8);
 
@@ -325,9 +352,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = 0;
 
       m_debug_message("CLR8 %s", REGISTER_NAMES[*m]);
-    } break;
+    } DISPATCH;
 
-    case CLR4: {
+    CLR4: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 4);
 
@@ -336,9 +363,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = 0;
 
       m_debug_message("CLR4 %s", REGISTER_NAMES[*m]);
-    } break;
+    } DISPATCH;
 
-    case CLR2: {
+    CLR2: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 2);
 
@@ -347,9 +374,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = 0;
 
       m_debug_message("CLR2 %s", REGISTER_NAMES[*m]);
-    } break;
+    } DISPATCH;
 
-    case CLR1: {
+    CLR1: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 1);
 
@@ -358,10 +385,10 @@ bool Interpreter_execute (Interpreter* i) {
       *r = 0;
 
       m_debug_message("CLR1 %s", REGISTER_NAMES[*m]);
-    } break;
+    } DISPATCH;
 
 
-    case MOV8: {
+    MOV8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -374,9 +401,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *rb;
 
       m_debug_message("MOV8 %s, %s (0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } break;
+    } DISPATCH;
 
-    case MOV4: {
+    MOV4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -389,9 +416,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *rb;
 
       m_debug_message("MOV4 %s, %s (0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } break;
+    } DISPATCH;
 
-    case MOV2: {
+    MOV2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -404,9 +431,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *rb;
 
       m_debug_message("MOV2 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } break;
+    } DISPATCH;
 
-    case MOV1: {
+    MOV1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -419,10 +446,10 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *rb;
 
       m_debug_message("MOV1 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } break;
+    } DISPATCH;
 
 
-    case ADD8: {
+    ADD8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -437,9 +464,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("ADD8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case ADD4: {
+    ADD4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -454,9 +481,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("ADD4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case ADD2: {
+    ADD2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -471,9 +498,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("ADD2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case ADD1: {
+    ADD1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -488,10 +515,10 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("ADD1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
 
-    case SUB8: {
+    SUB8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -506,9 +533,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("SUB8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case SUB4: {
+    SUB4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -523,9 +550,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("SUB4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case SUB2: {
+    SUB2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -540,9 +567,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("SUB2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
-    case SUB1: {
+    SUB1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -557,10 +584,10 @@ bool Interpreter_execute (Interpreter* i) {
       m_debug_message("SUB1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
       *ra = o;
-    } break;
+    } DISPATCH;
 
 
-    case CMP8: {
+    CMP8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -575,9 +602,9 @@ bool Interpreter_execute (Interpreter* i) {
       else i->cmp = EQ;
 
       m_debug_message("CMP8 %s (0x%016llx), %s (0x%016llx) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } break;
+    } DISPATCH;
 
-    case CMP4: {
+    CMP4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -592,9 +619,9 @@ bool Interpreter_execute (Interpreter* i) {
       else i->cmp = EQ;
 
       m_debug_message("CMP4 %s (0x%08x), %s (0x%08x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } break;
+    } DISPATCH;
 
-    case CMP2: {
+    CMP2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -609,9 +636,9 @@ bool Interpreter_execute (Interpreter* i) {
       else i->cmp = EQ;
 
       m_debug_message("CMP2 %s (0x%04x), %s (0x%04x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } break;
+    } DISPATCH;
 
-    case CMP1: {
+    CMP1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -626,10 +653,10 @@ bool Interpreter_execute (Interpreter* i) {
       else i->cmp = EQ;
 
       m_debug_message("CMP1 %s (0x%02x), %s (0x%02x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } break;
+    } DISPATCH;
 
 
-    case JMP: {
+    JMP: {
       int64_t* j = Interpreter_advance(i, 8);
 
       void* o_ip = i->ip;
@@ -637,9 +664,9 @@ bool Interpreter_execute (Interpreter* i) {
       Interpreter_advance(i, *j);
 
       m_debug_message("JMP %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-    } break;
+    } DISPATCH;
     
-    case JEQ: {
+    JEQ: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp == EQ) {
@@ -649,9 +676,9 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JEQ %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
     
-    case JNE: {
+    JNE: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp != EQ) {
@@ -661,9 +688,9 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JNE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
     
-    case JGE: {
+    JGE: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp >= EQ) {
@@ -673,9 +700,9 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JGE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
     
-    case JLE: {
+    JLE: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp <= EQ) {
@@ -685,9 +712,9 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JLE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
     
-    case JGT: {
+    JGT: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp == GT) {
@@ -697,9 +724,9 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JGT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
     
-    case JLT: {
+    JLT: {
       int64_t* j = Interpreter_advance(i, 8);
 
       if (i->cmp == LT) {
@@ -709,47 +736,47 @@ bool Interpreter_execute (Interpreter* i) {
 
         m_debug_message("JLT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
       }
-    } break;
+    } DISPATCH;
 
 
-    case PRINT8: {
+    PRINT8: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 8);
       
       uint64_t* r = i->op_registers + *m;
 
       printf("%s value: 0x%016llx\n", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case PRINT4: {
+    PRINT4: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 4);
       
       uint32_t* r = i->op_registers + *m;
 
       printf("%s value: 0x%08x\n", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case PRINT2: {
+    PRINT2: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 2);
       
       uint16_t* r = i->op_registers + *m;
 
       printf("%s value: 0x%04x\n", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
-    case PRINT1: {
+    PRINT1: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 1);
       
       uint8_t* r = i->op_registers + *m;
 
       printf("%s value: 0x%02x\n", REGISTER_NAMES[*m], *r);
-    } break;
+    } DISPATCH;
 
 
-    case LOAD8: {
+    LOAD8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -767,9 +794,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *mem;
 
       m_debug_message("LOAD8 %s, %s + %lld (=0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } break;
+    } DISPATCH;
 
-    case LOAD4: {
+    LOAD4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -787,9 +814,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *mem;
 
       m_debug_message("LOAD4 %s, %s + %lld (=0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } break;
+    } DISPATCH;
 
-    case LOAD2: {
+    LOAD2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -807,9 +834,9 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *mem;
 
       m_debug_message("LOAD2 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } break;
+    } DISPATCH;
 
-    case LOAD1: {
+    LOAD1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -827,10 +854,10 @@ bool Interpreter_execute (Interpreter* i) {
       *ra = *mem;
 
       m_debug_message("LOAD1 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } break;
+    } DISPATCH;
 
 
-    case STORE8: {
+    STORE8: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 8);
 
@@ -849,9 +876,9 @@ bool Interpreter_execute (Interpreter* i) {
       *mem = *rb;
 
       m_debug_message("STORE8 %s + %lld, %s (=0x%016llx)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } break;
+    } DISPATCH;
 
-    case STORE4: {
+    STORE4: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 4);
 
@@ -870,9 +897,9 @@ bool Interpreter_execute (Interpreter* i) {
       *mem = *rb;
 
       m_debug_message("STORE4 %s + %lld, %s (=0x%08x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } break;
+    } DISPATCH;
 
-    case STORE2: {
+    STORE2: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 2);
 
@@ -891,9 +918,9 @@ bool Interpreter_execute (Interpreter* i) {
       *mem = *rb;
 
       m_debug_message("STORE2 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } break;
+    } DISPATCH;
 
-    case STORE1: {
+    STORE1: {
       uint8_t* ma = Interpreter_advance(i, 1);
       m_validate_reg(ma, 1);
 
@@ -912,10 +939,10 @@ bool Interpreter_execute (Interpreter* i) {
       *mem = *rb;
 
       m_debug_message("STORE1 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } break;
+    } DISPATCH;
 
 
-    case POP8: {
+    POP8: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 8);
       
@@ -928,9 +955,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *(uint64_t*) *rsp;
 
       m_debug_message("POP8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case POP4: {
+    POP4: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 4);
       
@@ -943,9 +970,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *(uint32_t*) *rsp;
 
       m_debug_message("POP4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case POP2: {
+    POP2: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 2);
       
@@ -958,9 +985,9 @@ bool Interpreter_execute (Interpreter* i) {
       *r = *(uint16_t*) *rsp;
 
       m_debug_message("POP2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case POP1: {
+    POP1: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 1);
       
@@ -973,10 +1000,10 @@ bool Interpreter_execute (Interpreter* i) {
       *r = **rsp;
 
       m_debug_message("POP1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
 
-    case PUSH8: {
+    PUSH8: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 8);
       
@@ -991,9 +1018,9 @@ bool Interpreter_execute (Interpreter* i) {
       *s = *r;
 
       m_debug_message("PUSH8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case PUSH4: {
+    PUSH4: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 4);
       
@@ -1008,9 +1035,9 @@ bool Interpreter_execute (Interpreter* i) {
       *s = *r;
 
       m_debug_message("PUSH4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case PUSH2: {
+    PUSH2: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 2);
       
@@ -1025,9 +1052,9 @@ bool Interpreter_execute (Interpreter* i) {
       *s = *r;
 
       m_debug_message("PUSH2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
-    case PUSH1: {
+    PUSH1: {
       uint8_t* m = Interpreter_advance(i, 1);
       m_validate_reg(m, 1);
       
@@ -1042,10 +1069,10 @@ bool Interpreter_execute (Interpreter* i) {
       *s = *r;
 
       m_debug_message("PUSH1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } break;
+    } DISPATCH;
 
 
-    case CALL: {
+    CALL: {
       uint64_t* a = Interpreter_advance(i, 8);
       
       uint8_t** rsp = i->op_registers + RSP;
@@ -1060,9 +1087,9 @@ bool Interpreter_execute (Interpreter* i) {
       m_validate_ip(i);
 
       m_debug_message("CALL %llu (from %llu)", (uint64_t) i->ip, *s);
-    } break;
+    } DISPATCH;
 
-    case RET: {
+    RET: {
       uint8_t** rsp = i->op_registers + RSP;
       m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
 
@@ -1076,21 +1103,8 @@ bool Interpreter_execute (Interpreter* i) {
       m_validate_ip(i);
 
       m_debug_message("RET %llu (from %llu)", (uint64_t) i->ip, (uint64_t) o_ip);
-    } break;
+    } DISPATCH;
 
-
-    case HALT: return false;
-
-
-    default: m_panic_error("Unrecognized op code %u", *op_code);
+    HALT: return;
   }
-
-  return true;
-}
-
-extern
-void Interpreter_run (Interpreter* i) {
-  bool cont = true;
-  do cont = Interpreter_execute(i);
-  while (cont && i->ip < i->max_instruction_address);
 }

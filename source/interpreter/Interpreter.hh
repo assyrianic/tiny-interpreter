@@ -144,5 +144,4 @@ extern "C" void Interpreter_dispose (Interpreter* i);
 extern "C" void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instructions_length);
 extern "C" void Interpreter_load_program (Interpreter* i, Program p);
 extern "C" void* Interpreter_advance (Interpreter* i, int64_t offset);
-extern "C" bool Interpreter_execute (Interpreter* i);
 extern "C" void Interpreter_run (Interpreter* i);
