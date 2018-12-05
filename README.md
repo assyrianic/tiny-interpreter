@@ -8,7 +8,9 @@ To run Clang on Windows you also need the msvc build tools, as Clang uses it's s
 If you build this on another platform or compiler please let me know how it went and/or submit a pull request with additional tasks/makefile etc
 
 There are conditional defines avaiable for the C library build:
+
 > `SAFE_MODE` - Enables run time checks of various things to help catch errors in bytecode
+
 > `DEBUG_MODE` - Enables print statements for each instruction to allow visualizing the VM's execution state
 
 CodeView Debug info is enabled for both components by default.
