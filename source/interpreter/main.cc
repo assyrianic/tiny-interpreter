@@ -11,88 +11,123 @@
 // #define INSTRUCTION_DEBUG
 
 namespace Register {
-  enum: uint8_t {
-    S0, S1, S2, S3,
-    S4, S5, S6, S7,
-    S8, S9, SA, SB,
-    SC, SD, SE, SF
+  namespace Mask {
+    enum: uint8_t {
+      S0, S1, S2, S3,
+      S4, S5, S6, S7,
+      S8, S9, SA, SB,
+      SC, SD, SE, SF
+    };
+
+    static constexpr
+    uint32_t 
+      B0 = 0<<4,
+      B1 = 4<<4,
+      B2 = 6<<4,
+      B3 = 7<<4;
+
+    static constexpr
+    uint8_t
+      RAX = S0 | B0, RCX = S1 | B0, RDX = S2 | B0, RBX = S3 | B0,
+      EAX = S0 | B1, ECX = S1 | B1, EDX = S2 | B1, EBX = S3 | B1,
+      AX = S0 | B2,  CX = S1 | B2,  DX = S2 | B2,  BX = S3 | B2,
+      AL = S0 | B3,  CL = S1 | B3,  DL = S2 | B3,  BL = S3 | B3,
+
+      RSI = S4 | B0, RDI = S5 | B0, RSP = S6 | B0, RBP = S7 | B0,
+      ESI = S4 | B1, EDI = S5 | B1, ESP = S6 | B1, EBP = S7 | B1,
+      SI = S4 | B2,  DI = S5 | B2,  SP = S6 | B2,  BP = S7 | B2,
+      SIL = S4 | B3, DIL = S5 | B3, SPL = S6 | B3, BPL = S7 | B3,
+
+      R8  = S8 | B0, R9  = S9 | B0, R10  = SA | B0, R11  = SB | B0,
+      R8D = S8 | B1, R9D = S9 | B1, R10D = SA | B1, R11D = SB | B1,
+      R8W = S8 | B2, R9W = S9 | B2, R10W = SA | B2, R11W = SB | B2,
+      R8B = S8 | B3, R9B = S9 | B3, R10B = SA | B3, R11B = SB | B3,
+
+      R12  = SC | B0, R13  = SD | B0, R14  = SE | B0, R15  = SF | B0,
+      R12D = SC | B1, R13D = SD | B1, R14D = SE | B1, R15D = SF | B1,
+      R12W = SC | B2, R13W = SD | B2, R14W = SE | B2, R15W = SF | B2,
+      R12B = SC | B3, R13B = SD | B3, R14B = SE | B3, R15B = SF | B3;
+
+    static constexpr
+    uint8_t MASK [64] = {
+      Mask::RAX, Mask::RCX, Mask::RDX, Mask::RBX, Mask::RSI,  Mask::RDI,  Mask::RSP,  Mask::RBP,  Mask::R8,  Mask::R9,  Mask::R10,  Mask::R11,  Mask::R12,  Mask::R13,  Mask::R14,  Mask::R15,
+      Mask::EAX, Mask::ECX, Mask::EDX, Mask::EBX, Mask::ESI,  Mask::EDI,  Mask::ESP,  Mask::EBP,  Mask::R8D, Mask::R9D, Mask::R10D, Mask::R11D, Mask::R12D, Mask::R13D, Mask::R14D, Mask::R15D,
+      Mask::AX,  Mask::CX,  Mask::DX,  Mask::BX,  Mask::SI,   Mask::DI,   Mask::SP,   Mask::BP,  Mask::R8W, Mask::R9W, Mask::R10W, Mask::R11W, Mask::R12W, Mask::R13W, Mask::R14W, Mask::R15W,
+      Mask::AL,  Mask::CL,  Mask::DL,  Mask::BL,  Mask::SIL,  Mask::DIL,  Mask::SPL,  Mask::BPL, Mask::R8B, Mask::R9B, Mask::R10B, Mask::R11B, Mask::R12B, Mask::R13B, Mask::R14B, Mask::R15B
+    };
+
+    static constexpr
+    const char* NAME [64] = {
+      "RAX", "RCX", "RDX", "RBX", "RSI",  "RDI",  "RSP",  "RBP",  "R8",  "R9",  "R10",  "R11",  "R12",  "R13",  "R14",  "R15",
+      "EAX", "ECX", "EDX", "EBX", "ESI",  "EDI",  "ESP",  "EBP",  "R8D", "R9D", "R10D", "R11D", "R12D", "R13D", "R14D", "R15D",
+      "AX",  "CX",  "DX",  "BX",  "SI",   "DI",   "SP",   "BP",  "R8W", "R9W", "R10W", "R11W", "R12W", "R13W", "R14W", "R15W",
+      "AL",  "CL",  "DL",  "BL",  "SIL",  "DIL",  "SPL",  "BPL", "R8B", "R9B", "R10B", "R11B", "R12B", "R13B", "R14B", "R15B"
+    };
+
+    inline constexpr
+    uint8_t get_index (uint8_t mask) {
+      return mask & 0x0F;
+    }
+
+    inline constexpr
+    uint8_t get_offset (uint8_t mask) {
+      return mask >> 4;
+    }
+
+    inline constexpr
+    size_t get_size (uint8_t mask) {
+      return 8 - get_offset(mask);
+    }
+
+    inline constexpr
+    const char * get_name (uint8_t mask) {
+      for (size_t i = 0; i < 64; i ++) {
+        if (MASK[i] == mask) return NAME[i];
+      }
+
+      return NULL;
+    }
+
+    inline constexpr
+    uint8_t get_array_offset (uint8_t mask) {
+      uint8_t index  = get_index(mask);
+      uint8_t offset = get_offset(mask);
+
+      return index * 8llu + offset;
+    }
   };
 
   static constexpr
-  uint32_t 
-    B0 = 0<<4,
-    B1 = 4<<4,
-    B2 = 6<<4,
-    B3 = 7<<4;
+  uint8_t 
+    RAX = Mask::get_array_offset(Mask::RAX), RCX = Mask::get_array_offset(Mask::RCX), RDX = Mask::get_array_offset(Mask::RDX), RBX = Mask::get_array_offset(Mask::RBX), RSI = Mask::get_array_offset(Mask::RSI), RDI = Mask::get_array_offset(Mask::RDI), RSP = Mask::get_array_offset(Mask::RSP), RBP = Mask::get_array_offset(Mask::RBP), R8 = Mask::get_array_offset(Mask::R8), R9 = Mask::get_array_offset(Mask::R9), R10 = Mask::get_array_offset(Mask::R10), R11 = Mask::get_array_offset(Mask::R11), R12 = Mask::get_array_offset(Mask::R12), R13 = Mask::get_array_offset(Mask::R13), R14 = Mask::get_array_offset(Mask::R14), R15 = Mask::get_array_offset(Mask::R15),
+    EAX = Mask::get_array_offset(Mask::EAX), ECX = Mask::get_array_offset(Mask::ECX), EDX = Mask::get_array_offset(Mask::EDX), EBX = Mask::get_array_offset(Mask::EBX), ESI = Mask::get_array_offset(Mask::ESI), EDI = Mask::get_array_offset(Mask::EDI), ESP = Mask::get_array_offset(Mask::ESP), EBP = Mask::get_array_offset(Mask::EBP), R8D = Mask::get_array_offset(Mask::R8D), R9D = Mask::get_array_offset(Mask::R9D), R10D = Mask::get_array_offset(Mask::R10D), R11D = Mask::get_array_offset(Mask::R11D), R12D = Mask::get_array_offset(Mask::R12D), R13D = Mask::get_array_offset(Mask::R13D), R14D = Mask::get_array_offset(Mask::R14D), R15D = Mask::get_array_offset(Mask::R15D),
+    AX = Mask::get_array_offset(Mask::AX), CX = Mask::get_array_offset(Mask::CX), DX = Mask::get_array_offset(Mask::DX), BX = Mask::get_array_offset(Mask::BX), SI = Mask::get_array_offset(Mask::SI), DI = Mask::get_array_offset(Mask::DI), SP = Mask::get_array_offset(Mask::SP), BP = Mask::get_array_offset(Mask::BP), R8W = Mask::get_array_offset(Mask::R8W), R9W = Mask::get_array_offset(Mask::R9W), R10W = Mask::get_array_offset(Mask::R10W), R11W = Mask::get_array_offset(Mask::R11W), R12W = Mask::get_array_offset(Mask::R12W), R13W = Mask::get_array_offset(Mask::R13W), R14W = Mask::get_array_offset(Mask::R14W), R15W = Mask::get_array_offset(Mask::R15W),
+    AL = Mask::get_array_offset(Mask::AL), CL = Mask::get_array_offset(Mask::CL), DL = Mask::get_array_offset(Mask::DL), BL = Mask::get_array_offset(Mask::BL), SIL = Mask::get_array_offset(Mask::SIL), DIL = Mask::get_array_offset(Mask::DIL), SPL = Mask::get_array_offset(Mask::SPL), BPL = Mask::get_array_offset(Mask::BPL), R8B = Mask::get_array_offset(Mask::R8B), R9B = Mask::get_array_offset(Mask::R9B), R10B = Mask::get_array_offset(Mask::R10B), R11B = Mask::get_array_offset(Mask::R11B), R12B = Mask::get_array_offset(Mask::R12B), R13B = Mask::get_array_offset(Mask::R13B), R14B = Mask::get_array_offset(Mask::R14B), R15B = Mask::get_array_offset(Mask::R15B);
 
   static constexpr
-  uint8_t
-    RAX = S0 | B0, RCX = S1 | B0, RDX = S2 | B0, RBX = S3 | B0,
-    EAX = S0 | B1, ECX = S1 | B1, EDX = S2 | B1, EBX = S3 | B1,
-     AX = S0 | B2,  CX = S1 | B2,  DX = S2 | B2,  BX = S3 | B2,
-     AL = S0 | B3,  CL = S1 | B3,  DL = S2 | B3,  BL = S3 | B3,
-
-    RSI = S4 | B0, RDI = S5 | B0, RSP = S6 | B0, RBP = S7 | B0,
-    ESI = S4 | B1, EDI = S5 | B1, ESP = S6 | B1, EBP = S7 | B1,
-     SI = S4 | B2,  DI = S5 | B2,  SP = S6 | B2,  BP = S7 | B2,
-    SIL = S4 | B3, DIL = S5 | B3, SPL = S6 | B3, BPL = S7 | B3,
-
-    R8  = S8 | B0, R9  = S9 | B0, R10  = SA | B0, R11  = SB | B0,
-    R8D = S8 | B1, R9D = S9 | B1, R10D = SA | B1, R11D = SB | B1,
-    R8W = S8 | B2, R9W = S9 | B2, R10W = SA | B2, R11W = SB | B2,
-    R8B = S8 | B3, R9B = S9 | B3, R10B = SA | B3, R11B = SB | B3,
-
-    R12  = SC | B0, R13  = SD | B0, R14  = SE | B0, R15  = SF | B0,
-    R12D = SC | B1, R13D = SD | B1, R14D = SE | B1, R15D = SF | B1,
-    R12W = SC | B2, R13W = SD | B2, R14W = SE | B2, R15W = SF | B2,
-    R12B = SC | B3, R13B = SD | B3, R14B = SE | B3, R15B = SF | B3;
-
-  static constexpr
-  uint8_t MASK [64] = {
-    RAX, RCX, RDX, RBX, RSI,  RDI,  RSP,  RBP,  R8,  R9,  R10,  R11,  R12,  R13,  R14,  R15,
-    EAX, ECX, EDX, EBX, ESI,  EDI,  ESP,  EBP,  R8D, R9D, R10D, R11D, R12D, R13D, R14D, R15D,
-     AX,  CX,  DX,  BX,  SI,   DI,   SP,   BP,  R8W, R9W, R10W, R11W, R12W, R13W, R14W, R15W,
-     AL,  CL,  DL,  BL,  SIL,  DIL,  SPL,  BPL, R8B, R9B, R10B, R11B, R12B, R13B, R14B, R15B
-  };
-
-  static constexpr
-  const char* NAME [64] = {
-    "RAX", "RCX", "RDX", "RBX", "RSI",  "RDI",  "RSP",  "RBP",  "R8",  "R9",  "R10",  "R11",  "R12",  "R13",  "R14",  "R15",
-    "EAX", "ECX", "EDX", "EBX", "ESI",  "EDI",  "ESP",  "EBP",  "R8D", "R9D", "R10D", "R11D", "R12D", "R13D", "R14D", "R15D",
-     "AX",  "CX",  "DX",  "BX",  "SI",   "DI",   "SP",   "BP",  "R8W", "R9W", "R10W", "R11W", "R12W", "R13W", "R14W", "R15W",
-     "AL",  "CL",  "DL",  "BL",  "SIL",  "DIL",  "SPL",  "BPL", "R8B", "R9B", "R10B", "R11B", "R12B", "R13B", "R14B", "R15B"
+  uint8_t INDEX [64] = {
+    RAX, RCX, RDX, RBX, RSI, RDI, RSP, RBP, R8, R9, R10, R11, R12, R13, R14, R15,
+    EAX, ECX, EDX, EBX, ESI, EDI, ESP, EBP, R8D, R9D, R10D, R11D, R12D, R13D, R14D, R15D,
+    AX, CX, DX, BX, SI, DI, SP, BP, R8W, R9W, R10W, R11W, R12W, R13W, R14W, R15W,
+    AL, CL, DL, BL, SIL, DIL, SPL, BPL, R8B, R9B, R10B, R11B, R12B, R13B, R14B, R15B
   };
 
   inline constexpr
-  uint8_t get_index (uint8_t mask) {
-    return mask & 0x0F;
-  }
-
-  inline constexpr
-  uint8_t get_offset (uint8_t mask) {
-    return mask >> 4;
-  }
-
-  inline constexpr
-  size_t get_size (uint8_t mask) {
-    return 8 - get_offset(mask);
-  }
-
-  inline constexpr
-  const char * get_name (uint8_t mask) {
+  const char * get_name (uint8_t index) {
     for (size_t i = 0; i < 64; i ++) {
-      if (MASK[i] == mask) return NAME[i];
+      if (INDEX[i] == index) return Mask::NAME[i];
     }
 
     return NULL;
   }
 
   inline constexpr
-  size_t get_array_offset (uint8_t mask) {
-    size_t index  = get_index(mask);
-    size_t offset = get_offset(mask);
+  uint8_t get_size (uint8_t index) {
+    for (size_t i = 0; i < 64; i ++) {
+      if (INDEX[i] == index) return Mask::get_size(Mask::MASK[i]);
+    }
 
-    return index * 8llu + offset;
+    return 0;
   }
 };
 
@@ -101,19 +136,19 @@ struct RegisterSet {
   uint8_t memory [128] = { };
 
   inline constexpr
-  void* operator [] (uint8_t mask) {
-    return get_register(mask);
+  void* operator [] (uint8_t index) {
+    return memory + index;
   }
 
   inline constexpr
-  void* get_register (uint8_t mask) {
-    return memory + Register::get_array_offset(mask); 
+  void* get_register_mask (uint8_t mask) {
+    return memory + Register::Mask::get_array_offset(mask); 
   }
 
   inline constexpr
-  void* get_register (uint8_t mask, uint8_t min_size) {
-    uint8_t index  = Register::get_index(mask);
-    uint8_t offset = Register::get_offset(mask);
+  void* get_register_mask (uint8_t mask, uint8_t min_size) {
+    uint8_t index  = Register::Mask::get_index(mask);
+    uint8_t offset = Register::Mask::get_offset(mask);
 
     #ifdef INSTRUCTION_SAFE
       uint8_t size = 8 - offset;
@@ -121,6 +156,21 @@ struct RegisterSet {
     #endif
 
     return memory + (index * 8) + offset;
+  }
+
+  inline constexpr
+  void* get_register (uint8_t index) {
+    return memory + index;
+  }
+
+  inline constexpr
+  void* get_register (uint8_t index, uint8_t min_size) {
+    #ifdef INSTRUCTION_SAFE
+      uint8_t size = Register::get_size(index);
+      m_panic_assert(size >= min_size, "Invalid Register size for Register %s, expected %u or greater, not %u", Register::get_name(mask), min_size, size);
+    #endif
+
+    return get_register(index);
   }
 
   inline
@@ -287,7 +337,7 @@ struct Interpreter {
       case LIT4: {
         auto& m = instructions[advance()];
         auto r = (uint32_t*) op_registers.get_register(m, 4);
-        auto l = (uint32_t*) (instructions + advance(4));
+        auto l = (uint32_t*)  (instructions + advance(4));
         *r = *l;
         
         #ifdef INSTRUCTION_DEBUG
