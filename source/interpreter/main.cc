@@ -1,7 +1,14 @@
-#include "../standard/lib.hh"
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <cstring>
 #include "time.hh"
 
-#define INSTRUCTION_DEBUG
+#define m_panic_header() printf("Internal error at [%s:%d]: ", __FILE__, __LINE__)
+#define m_panic_error(fmt, ...) { m_panic_header(); printf(fmt, __VA_ARGS__); putchar('\n'); abort(); }
+#define m_panic_assert(cond, fmt, ...) if (!(cond)) m_panic_error(fmt, __VA_ARGS__)
+
+// #define INSTRUCTION_DEBUG
 
 namespace Register {
   enum: uint8_t {
@@ -176,6 +183,11 @@ namespace Instruction {
   };
 }
 
+template <typename A, typename B>
+struct Pair {
+  A a;
+  B b;
+};
 
 struct Interpreter {
   static constexpr // 1mb stack memory
@@ -233,7 +245,7 @@ struct Interpreter {
   }
 
   inline
-  void load (stdl::Pair<uint8_t*, size_t> pair) { return load(pair.a, pair.b); }
+  void load (Pair<uint8_t*, size_t> pair) { return load(pair.a, pair.b); }
 
 
   inline
@@ -1006,7 +1018,7 @@ uint8_t* encode_value (uint8_t*& dest, size_t& cap, size_t& len, T& v) {
 }
 
 template <typename ... A>
-stdl::Pair<void*, size_t> encode (A ... args) {
+Pair<uint8_t*, size_t> encode (A ... args) {
   auto data = (uint8_t*) malloc(16);
   size_t cap = 16;
   size_t len = 0;
@@ -1027,7 +1039,7 @@ int main (int argc, char** args) {
   Interpreter I;
 
 
-  constexpr int N = 4;
+  constexpr int N = 34;
 
   auto fib = encode(
     LIT8, RCX, (uint64_t) N, //10
@@ -1080,9 +1092,9 @@ int main (int argc, char** args) {
   printf("fib_s(%d) = %d\n", N, fib_s(N, (void*) fib_s));
 
 
-  // I.clear();
-  // TimingResult switch_result   = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
-  // printf("Switch timing: "); switch_result.print(10); putchar('\n');
+  I.clear();
+  TimingResult timing_result = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
+  printf("Timing result: "); timing_result.print(10); putchar('\n');
 
   
   I.dispose(true);
