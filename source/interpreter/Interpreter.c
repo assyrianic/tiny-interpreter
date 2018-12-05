@@ -263,32 +263,36 @@ void* Interpreter_advance (Interpreter* i, int64_t offset) {
 
 extern
 void Interpreter_run (Interpreter* i) {
-  static void* dispatch_table [INSTRUCTION_COUNT] = {
-    &&NO_OP,
+  #ifndef __INTELLISENSE__
+    static void* dispatch_table [INSTRUCTION_COUNT] = {
+      &&NO_OP,
 
-    &&LIT8, &&LIT4, &&LIT2, &&LIT1,
+      &&LIT8, &&LIT4, &&LIT2, &&LIT1,
 
-    &&CLR8, &&CLR4, &&CLR2, &&CLR1,
+      &&CLR8, &&CLR4, &&CLR2, &&CLR1,
 
-    &&MOV8, &&MOV4, &&MOV2, &&MOV1,
+      &&MOV8, &&MOV4, &&MOV2, &&MOV1,
 
-    &&ADD8, &&ADD4, &&ADD2, &&ADD1,
-    &&SUB8, &&SUB4, &&SUB2, &&SUB1,
+      &&ADD8, &&ADD4, &&ADD2, &&ADD1,
+      &&SUB8, &&SUB4, &&SUB2, &&SUB1,
 
-    &&CMP8, &&CMP4, &&CMP2, &&CMP1,
-    &&JMP, &&JEQ, &&JNE, &&JGE, &&JLE, &&JGT, &&JLT,
+      &&CMP8, &&CMP4, &&CMP2, &&CMP1,
+      &&JMP, &&JEQ, &&JNE, &&JGE, &&JLE, &&JGT, &&JLT,
 
-    &&PRINT8, &&PRINT4, &&PRINT2, &&PRINT1,
+      &&PRINT8, &&PRINT4, &&PRINT2, &&PRINT1,
 
-    &&LOAD8, &&LOAD4, &&LOAD2, &&LOAD1,
-    &&STORE8, &&STORE4, &&STORE2, &&STORE1,
-    &&PUSH8, &&PUSH4, &&PUSH2, &&PUSH1,
-    &&POP8, &&POP4, &&POP2, &&POP1,
+      &&LOAD8, &&LOAD4, &&LOAD2, &&LOAD1,
+      &&STORE8, &&STORE4, &&STORE2, &&STORE1,
+      &&PUSH8, &&PUSH4, &&PUSH2, &&PUSH1,
+      &&POP8, &&POP4, &&POP2, &&POP1,
 
-    &&CALL, &&RET, &&HALT,
-  };
+      &&CALL, &&RET, &&HALT,
+    };
 
-  #define DISPATCH goto *dispatch_table[*(uint8_t*) Interpreter_advance(i, 1)]
+    #define DISPATCH goto *dispatch_table[*(uint8_t*) Interpreter_advance(i, 1)]
+  #else
+    #define DISPATCH
+  #endif
 
   DISPATCH;
 
