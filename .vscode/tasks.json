@@ -9,6 +9,7 @@
       "group": "build",
       "command": "clang-cl",
       "args": [
+        "-Ot",
         "-Z7",
         "/c",
         "source/interpreter/Interpreter.c",
@@ -28,6 +29,7 @@
       },
       "command": "clang-cl",
       "args": [
+        "-Ot",
         "-Z7",
         "-Xclang", "-std=c++17",
         "source/interpreter/main.cc",
