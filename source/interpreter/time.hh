@@ -1,5 +1,7 @@
 #pragma once
+
 #include <cstdint>
+#include <cmath>
 #include "windows.h"
 
 template <typename T, typename ... A>
