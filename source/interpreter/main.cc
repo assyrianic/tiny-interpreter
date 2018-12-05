@@ -24,7 +24,7 @@ uint8_t* encode_value (uint8_t*& dest, size_t& cap, size_t& len, T& v) {
 }
 
 template <typename ... A>
-Program encode (A ... args) {
+ti::Program encode (A ... args) {
   auto data = (uint8_t*) malloc(16);
   size_t cap = 16;
   size_t len = 0;
@@ -38,10 +38,10 @@ Program encode (A ... args) {
 
 
 int main (int argc, char** args) {
-  Interpreter I;
+  ti::Interpreter I;
 
-  using namespace Register;
-  using namespace Instruction;
+  using namespace ti::Register;
+  using namespace ti::Instruction;
 
   constexpr int N = 34;
 
