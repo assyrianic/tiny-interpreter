@@ -5,7 +5,7 @@ Limited use interpreter project for fun / example purposes. Very fast, ~350ms fo
 VS Code build tasks are included for Clang, and currently this has only been tested on Windows.
 To run Clang on Windows you also need the msvc build tools, as Clang uses its standard headers and linker.
 
-Nothing in the core VM is particularly windows-specific, but the timing test function relies on `windows.h`.
+Nothing in the core interpreter code is windows-specific, but the timing test function relies on `windows.h`.
 
 If you build this on another platform or compiler, please let me know how it went and/or submit a pull request with additional tasks/makefile/etc.
 
