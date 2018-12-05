@@ -294,821 +294,821 @@ void Interpreter_run (Interpreter* i) {
     #define DISPATCH
   #endif
 
+
   DISPATCH;
 
-  while (true) {
-    NO_OP: {
-      m_debug_message("NO_OP");
-    } DISPATCH;
 
+  NO_OP: {
+    m_debug_message("NO_OP");
+  } DISPATCH;
 
-    LIT8: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 8);
-      
-      uint64_t* r = i->op_registers + *m;
-      uint64_t* l = Interpreter_advance(i, 8);
-      *r = *l;
 
-      m_debug_message("LIT8 %s, 0x%016llx", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+  LIT8: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 8);
+    
+    uint64_t* r = i->op_registers + *m;
+    uint64_t* l = Interpreter_advance(i, 8);
+    *r = *l;
 
-    LIT4: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 4);
-      
-      uint32_t* r = i->op_registers + *m;
-      uint32_t* l = Interpreter_advance(i, 4);
-      *r = *l;
+    m_debug_message("LIT8 %s, 0x%016llx", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-      m_debug_message("LIT4 %s, 0x%08x", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+  LIT4: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 4);
+    
+    uint32_t* r = i->op_registers + *m;
+    uint32_t* l = Interpreter_advance(i, 4);
+    *r = *l;
 
-    LIT2: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 2);
-      
-      uint16_t* r = i->op_registers + *m;
-      uint16_t* l = Interpreter_advance(i, 2);
-      *r = *l;
+    m_debug_message("LIT4 %s, 0x%08x", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-      m_debug_message("LIT2 %s, 0x%04x", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+  LIT2: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 2);
+    
+    uint16_t* r = i->op_registers + *m;
+    uint16_t* l = Interpreter_advance(i, 2);
+    *r = *l;
 
-    LIT1: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 1);
-      
-      uint8_t* r = i->op_registers + *m;
-      uint8_t* l = Interpreter_advance(i, 1);
-      *r = *l;
+    m_debug_message("LIT2 %s, 0x%04x", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-      m_debug_message("LIT1 %s, 0x%02x", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+  LIT1: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 1);
+    
+    uint8_t* r = i->op_registers + *m;
+    uint8_t* l = Interpreter_advance(i, 1);
+    *r = *l;
 
+    m_debug_message("LIT1 %s, 0x%02x", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-    CLR8: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 8);
 
-      uint64_t* r = i->op_registers + *m;
+  CLR8: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 8);
 
-      *r = 0;
+    uint64_t* r = i->op_registers + *m;
 
-      m_debug_message("CLR8 %s", REGISTER_NAMES[*m]);
-    } DISPATCH;
+    *r = 0;
 
-    CLR4: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 4);
+    m_debug_message("CLR8 %s", REGISTER_NAMES[*m]);
+  } DISPATCH;
 
-      uint32_t* r = i->op_registers + *m;
+  CLR4: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 4);
 
-      *r = 0;
+    uint32_t* r = i->op_registers + *m;
 
-      m_debug_message("CLR4 %s", REGISTER_NAMES[*m]);
-    } DISPATCH;
+    *r = 0;
 
-    CLR2: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 2);
+    m_debug_message("CLR4 %s", REGISTER_NAMES[*m]);
+  } DISPATCH;
 
-      uint16_t* r = i->op_registers + *m;
+  CLR2: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 2);
 
-      *r = 0;
+    uint16_t* r = i->op_registers + *m;
 
-      m_debug_message("CLR2 %s", REGISTER_NAMES[*m]);
-    } DISPATCH;
+    *r = 0;
 
-    CLR1: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 1);
+    m_debug_message("CLR2 %s", REGISTER_NAMES[*m]);
+  } DISPATCH;
 
-      uint8_t* r = i->op_registers + *m;
+  CLR1: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 1);
 
-      *r = 0;
+    uint8_t* r = i->op_registers + *m;
 
-      m_debug_message("CLR1 %s", REGISTER_NAMES[*m]);
-    } DISPATCH;
+    *r = 0;
 
+    m_debug_message("CLR1 %s", REGISTER_NAMES[*m]);
+  } DISPATCH;
 
-    MOV8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
+  MOV8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
 
-      uint64_t* ra = i->op_registers + *ma;
-      uint64_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
 
-      *ra = *rb;
+    uint64_t* ra = i->op_registers + *ma;
+    uint64_t* rb = i->op_registers + *mb;
 
-      m_debug_message("MOV8 %s, %s (0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } DISPATCH;
+    *ra = *rb;
 
-    MOV4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
+    m_debug_message("MOV8 %s, %s (0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
+  MOV4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
 
-      uint32_t* ra = i->op_registers + *ma;
-      uint32_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
 
-      *ra = *rb;
+    uint32_t* ra = i->op_registers + *ma;
+    uint32_t* rb = i->op_registers + *mb;
 
-      m_debug_message("MOV4 %s, %s (0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } DISPATCH;
+    *ra = *rb;
 
-    MOV2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
+    m_debug_message("MOV4 %s, %s (0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
+  MOV2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
 
-      uint16_t* ra = i->op_registers + *ma;
-      uint16_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
 
-      *ra = *rb;
+    uint16_t* ra = i->op_registers + *ma;
+    uint16_t* rb = i->op_registers + *mb;
 
-      m_debug_message("MOV2 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } DISPATCH;
+    *ra = *rb;
 
-    MOV1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
+    m_debug_message("MOV2 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
+  MOV1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
 
-      uint8_t* ra = i->op_registers + *ma;
-      uint8_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
 
-      *ra = *rb;
+    uint8_t* ra = i->op_registers + *ma;
+    uint8_t* rb = i->op_registers + *mb;
 
-      m_debug_message("MOV1 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
-    } DISPATCH;
+    *ra = *rb;
 
+    m_debug_message("MOV1 %s, %s (0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
+  } DISPATCH;
 
-    ADD8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
+  ADD8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
 
-      uint64_t* ra = i->op_registers + *ma;
-      uint64_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
 
-      uint64_t o = *ra + *rb;
+    uint64_t* ra = i->op_registers + *ma;
+    uint64_t* rb = i->op_registers + *mb;
 
-      m_debug_message("ADD8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint64_t o = *ra + *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("ADD8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    ADD4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
+  ADD4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
 
-      uint32_t* ra = i->op_registers + *ma;
-      uint32_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
 
-      uint32_t o = *ra + *rb;
+    uint32_t* ra = i->op_registers + *ma;
+    uint32_t* rb = i->op_registers + *mb;
 
-      m_debug_message("ADD4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint32_t o = *ra + *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("ADD4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    ADD2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
+  ADD2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
 
-      uint16_t* ra = i->op_registers + *ma;
-      uint16_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
 
-      uint16_t o = *ra + *rb;
+    uint16_t* ra = i->op_registers + *ma;
+    uint16_t* rb = i->op_registers + *mb;
 
-      m_debug_message("ADD2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint16_t o = *ra + *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("ADD2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    ADD1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
+  ADD1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
 
-      uint8_t* ra = i->op_registers + *ma;
-      uint8_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
 
-      uint8_t o = *ra + *rb;
+    uint8_t* ra = i->op_registers + *ma;
+    uint8_t* rb = i->op_registers + *mb;
 
-      m_debug_message("ADD1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint8_t o = *ra + *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("ADD1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
+    *ra = o;
+  } DISPATCH;
 
-    SUB8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
+  SUB8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
 
-      uint64_t* ra = i->op_registers + *ma;
-      uint64_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
 
-      uint64_t o = *ra - *rb;
+    uint64_t* ra = i->op_registers + *ma;
+    uint64_t* rb = i->op_registers + *mb;
 
-      m_debug_message("SUB8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint64_t o = *ra - *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("SUB8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    SUB4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
+  SUB4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
 
-      uint32_t* ra = i->op_registers + *ma;
-      uint32_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
 
-      uint32_t o = *ra - *rb;
+    uint32_t* ra = i->op_registers + *ma;
+    uint32_t* rb = i->op_registers + *mb;
 
-      m_debug_message("SUB4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint32_t o = *ra - *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("SUB4 %s (0x%08x), %s (0x%08x) (=0x%08x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    SUB2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
+  SUB2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
 
-      uint16_t* ra = i->op_registers + *ma;
-      uint16_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
 
-      uint16_t o = *ra - *rb;
+    uint16_t* ra = i->op_registers + *ma;
+    uint16_t* rb = i->op_registers + *mb;
 
-      m_debug_message("SUB2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint16_t o = *ra - *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("SUB2 %s (0x%04x), %s (0x%04x) (=0x%04x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
-    SUB1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
+    *ra = o;
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
+  SUB1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
 
-      uint8_t* ra = i->op_registers + *ma;
-      uint8_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
 
-      uint8_t o = *ra - *rb;
+    uint8_t* ra = i->op_registers + *ma;
+    uint8_t* rb = i->op_registers + *mb;
 
-      m_debug_message("SUB1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    uint8_t o = *ra - *rb;
 
-      *ra = o;
-    } DISPATCH;
+    m_debug_message("SUB1 %s (0x%02x), %s (0x%02x) (=0x%02x)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
+    *ra = o;
+  } DISPATCH;
 
-    CMP8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
+  CMP8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
 
-      uint64_t* ra = i->op_registers + *ma;
-      uint64_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
 
-      if (*ra < *rb) i->cmp = LT;
-      else if (*ra > *rb) i->cmp = GT;
-      else i->cmp = EQ;
+    uint64_t* ra = i->op_registers + *ma;
+    uint64_t* rb = i->op_registers + *mb;
 
-      m_debug_message("CMP8 %s (0x%016llx), %s (0x%016llx) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } DISPATCH;
+    if (*ra < *rb) i->cmp = LT;
+    else if (*ra > *rb) i->cmp = GT;
+    else i->cmp = EQ;
 
-    CMP4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
+    m_debug_message("CMP8 %s (0x%016llx), %s (0x%016llx) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
+  CMP4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
 
-      uint32_t* ra = i->op_registers + *ma;
-      uint32_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
 
-      if (*ra < *rb) i->cmp = LT;
-      else if (*ra > *rb) i->cmp = GT;
-      else i->cmp = EQ;
+    uint32_t* ra = i->op_registers + *ma;
+    uint32_t* rb = i->op_registers + *mb;
 
-      m_debug_message("CMP4 %s (0x%08x), %s (0x%08x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } DISPATCH;
+    if (*ra < *rb) i->cmp = LT;
+    else if (*ra > *rb) i->cmp = GT;
+    else i->cmp = EQ;
 
-    CMP2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
+    m_debug_message("CMP4 %s (0x%08x), %s (0x%08x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
+  CMP2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
 
-      uint16_t* ra = i->op_registers + *ma;
-      uint16_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
 
-      if (*ra < *rb) i->cmp = LT;
-      else if (*ra > *rb) i->cmp = GT;
-      else i->cmp = EQ;
+    uint16_t* ra = i->op_registers + *ma;
+    uint16_t* rb = i->op_registers + *mb;
 
-      m_debug_message("CMP2 %s (0x%04x), %s (0x%04x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } DISPATCH;
+    if (*ra < *rb) i->cmp = LT;
+    else if (*ra > *rb) i->cmp = GT;
+    else i->cmp = EQ;
 
-    CMP1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
+    m_debug_message("CMP2 %s (0x%04x), %s (0x%04x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
+  CMP1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
 
-      uint8_t* ra = i->op_registers + *ma;
-      uint8_t* rb = i->op_registers + *mb;
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
 
-      if (*ra < *rb) i->cmp = LT;
-      else if (*ra > *rb) i->cmp = GT;
-      else i->cmp = EQ;
+    uint8_t* ra = i->op_registers + *ma;
+    uint8_t* rb = i->op_registers + *mb;
 
-      m_debug_message("CMP1 %s (0x%02x), %s (0x%02x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
-    } DISPATCH;
+    if (*ra < *rb) i->cmp = LT;
+    else if (*ra > *rb) i->cmp = GT;
+    else i->cmp = EQ;
 
+    m_debug_message("CMP1 %s (0x%02x), %s (0x%02x) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
+  } DISPATCH;
 
-    JMP: {
-      int64_t* j = Interpreter_advance(i, 8);
 
+  JMP: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    void* o_ip = i->ip;
+
+    Interpreter_advance(i, *j);
+
+    m_debug_message("JMP %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+  } DISPATCH;
+  
+  JEQ: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp == EQ) {
       void* o_ip = i->ip;
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JMP %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-    } DISPATCH;
+      m_debug_message("JEQ %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+  
+  JNE: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp != EQ) {
+      void* o_ip = i->ip;
+
+      Interpreter_advance(i, *j);
+
+      m_debug_message("JNE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+  
+  JGE: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp >= EQ) {
+      void* o_ip = i->ip;
+
+      Interpreter_advance(i, *j);
+
+      m_debug_message("JGE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+  
+  JLE: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp <= EQ) {
+      void* o_ip = i->ip;
+
+      Interpreter_advance(i, *j);
+
+      m_debug_message("JLE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+  
+  JGT: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp == GT) {
+      void* o_ip = i->ip;
+
+      Interpreter_advance(i, *j);
+
+      m_debug_message("JGT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+  
+  JLT: {
+    int64_t* j = Interpreter_advance(i, 8);
+
+    if (i->cmp == LT) {
+      void* o_ip = i->ip;
+
+      Interpreter_advance(i, *j);
+
+      m_debug_message("JLT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    }
+  } DISPATCH;
+
+
+  PRINT8: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 8);
     
-    JEQ: {
-      int64_t* j = Interpreter_advance(i, 8);
+    uint64_t* r = i->op_registers + *m;
 
-      if (i->cmp == EQ) {
-        void* o_ip = i->ip;
+    printf("%s value: 0x%016llx\n", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-        Interpreter_advance(i, *j);
-
-        m_debug_message("JEQ %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+  PRINT4: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 4);
     
-    JNE: {
-      int64_t* j = Interpreter_advance(i, 8);
+    uint32_t* r = i->op_registers + *m;
 
-      if (i->cmp != EQ) {
-        void* o_ip = i->ip;
+    printf("%s value: 0x%08x\n", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-        Interpreter_advance(i, *j);
-
-        m_debug_message("JNE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+  PRINT2: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 2);
     
-    JGE: {
-      int64_t* j = Interpreter_advance(i, 8);
+    uint16_t* r = i->op_registers + *m;
 
-      if (i->cmp >= EQ) {
-        void* o_ip = i->ip;
+    printf("%s value: 0x%04x\n", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-        Interpreter_advance(i, *j);
-
-        m_debug_message("JGE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+  PRINT1: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 1);
     
-    JLE: {
-      int64_t* j = Interpreter_advance(i, 8);
+    uint8_t* r = i->op_registers + *m;
 
-      if (i->cmp <= EQ) {
-        void* o_ip = i->ip;
+    printf("%s value: 0x%02x\n", REGISTER_NAMES[*m], *r);
+  } DISPATCH;
 
-        Interpreter_advance(i, *j);
 
-        m_debug_message("JLE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+  LOAD8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
+
+    uint64_t* ra = i->op_registers + *ma;
+    uint8_t** rb = i->op_registers + *mb;
+    int64_t*  of = Interpreter_advance(i, 8);
+
+    uint64_t* mem = *rb + *of;
+
+    // TODO mem range check
+
+    *ra = *mem;
+
+    m_debug_message("LOAD8 %s, %s + %lld (=0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+  } DISPATCH;
+
+  LOAD4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
+
+    uint32_t* ra = i->op_registers + *ma;
+    uint8_t** rb = i->op_registers + *mb;
+    int64_t*  of = Interpreter_advance(i, 8);
+
+    uint32_t* mem = *rb + *of;
+
+    // TODO mem range check
+
+    *ra = *mem;
+
+    m_debug_message("LOAD4 %s, %s + %lld (=0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+  } DISPATCH;
+
+  LOAD2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
+
+    uint16_t* ra = i->op_registers + *ma;
+    uint8_t** rb = i->op_registers + *mb;
+    int64_t*  of = Interpreter_advance(i, 8);
+
+    uint16_t* mem = *rb + *of;
+
+    // TODO mem range check
+
+    *ra = *mem;
+
+    m_debug_message("LOAD2 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+  } DISPATCH;
+
+  LOAD1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
+
+    uint8_t*  ra = i->op_registers + *ma;
+    uint8_t** rb = i->op_registers + *mb;
+    int64_t*  of = Interpreter_advance(i, 8);
+
+    uint8_t* mem = *rb + *of;
+
+    // TODO mem range check
+
+    *ra = *mem;
+
+    m_debug_message("LOAD1 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+  } DISPATCH;
+
+
+  STORE8: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 8);
+
+    int64_t* of = Interpreter_advance(i, 8);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 8);
+
+    uint8_t** ra = i->op_registers + *ma;
+    uint64_t* rb = i->op_registers + *mb;
+
+    uint64_t* mem = *ra + *of;
+
+    // TODO mem range check
+
+    *mem = *rb;
+
+    m_debug_message("STORE8 %s + %lld, %s (=0x%016llx)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+  } DISPATCH;
+
+  STORE4: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 4);
+
+    int64_t* of = Interpreter_advance(i, 8);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 4);
+
+    uint8_t** ra = i->op_registers + *ma;
+    uint32_t* rb = i->op_registers + *mb;
+
+    uint32_t* mem = *ra + *of;
+
+    // TODO mem range check
+
+    *mem = *rb;
+
+    m_debug_message("STORE4 %s + %lld, %s (=0x%08x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+  } DISPATCH;
+
+  STORE2: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 2);
+
+    int64_t* of = Interpreter_advance(i, 8);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 2);
+
+    uint8_t** ra = i->op_registers + *ma;
+    uint16_t* rb = i->op_registers + *mb;
+
+    uint16_t* mem = *ra + *of;
+
+    // TODO mem range check
+
+    *mem = *rb;
+
+    m_debug_message("STORE2 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+  } DISPATCH;
+
+  STORE1: {
+    uint8_t* ma = Interpreter_advance(i, 1);
+    m_validate_reg(ma, 1);
+
+    int64_t* of = Interpreter_advance(i, 8);
+
+    uint8_t* mb = Interpreter_advance(i, 1);
+    m_validate_reg(mb, 1);
+
+    uint8_t** ra = i->op_registers + *ma;
+    uint8_t* rb = i->op_registers + *mb;
+
+    uint8_t* mem = *ra + *of;
+
+    // TODO mem range check
+
+    *mem = *rb;
+
+    m_debug_message("STORE1 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+  } DISPATCH;
+
+
+  POP8: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 8);
     
-    JGT: {
-      int64_t* j = Interpreter_advance(i, 8);
+    uint64_t* r = i->op_registers + *m;
 
-      if (i->cmp == GT) {
-        void* o_ip = i->ip;
-
-        Interpreter_advance(i, *j);
-
-        m_debug_message("JGT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte value from stack of size %llu", *rsp - i->stack);
     
-    JLT: {
-      int64_t* j = Interpreter_advance(i, 8);
+    *rsp = *rsp - 8;
+    *r = *(uint64_t*) *rsp;
+
+    m_debug_message("POP8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+  } DISPATCH;
+
+  POP4: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 4);
+    
+    uint32_t* r = i->op_registers + *m;
+
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp >= i->stack + 4, "Stack underflow: Cannot pop 4 byte value from stack of size %llu", *rsp - i->stack);
+    
+    *rsp = *rsp - 4;
+    *r = *(uint32_t*) *rsp;
+
+    m_debug_message("POP4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+  } DISPATCH;
+
+  POP2: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 2);
+    
+    uint16_t* r = i->op_registers + *m;
+
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp >= i->stack + 2, "Stack underflow: Cannot pop 2 byte value from stack of size %llu", *rsp - i->stack);
+    
+    *rsp = *rsp - 2;
+    *r = *(uint16_t*) *rsp;
+
+    m_debug_message("POP2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+  } DISPATCH;
+
+  POP1: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 1);
+    
+    uint8_t* r = i->op_registers + *m;
+
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp >= i->stack + 1, "Stack underflow: Cannot pop 1 byte value from stack of size 0");
+    
+    *rsp = *rsp - 1;
+    *r = **rsp;
 
-      if (i->cmp == LT) {
-        void* o_ip = i->ip;
+    m_debug_message("POP1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+  } DISPATCH;
 
-        Interpreter_advance(i, *j);
 
-        m_debug_message("JLT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
-      }
-    } DISPATCH;
+  PUSH8: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 8);
+    
+    uint64_t* r = i->op_registers + *m;
 
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp < i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    
+    uint64_t* s = *rsp;
+    *rsp = *rsp + 8;
 
-    PRINT8: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 8);
-      
-      uint64_t* r = i->op_registers + *m;
+    *s = *r;
 
-      printf("%s value: 0x%016llx\n", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+    m_debug_message("PUSH8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+  } DISPATCH;
 
-    PRINT4: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 4);
-      
-      uint32_t* r = i->op_registers + *m;
+  PUSH4: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 4);
+    
+    uint32_t* r = i->op_registers + *m;
 
-      printf("%s value: 0x%08x\n", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp < i->max_stack_address - 4, "Stack overflow: Cannot push 4 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    
+    uint32_t* s = *rsp;
+    *rsp = *rsp + 4;
 
-    PRINT2: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 2);
-      
-      uint16_t* r = i->op_registers + *m;
+    *s = *r;
 
-      printf("%s value: 0x%04x\n", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+    m_debug_message("PUSH4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+  } DISPATCH;
 
-    PRINT1: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 1);
-      
-      uint8_t* r = i->op_registers + *m;
+  PUSH2: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 2);
+    
+    uint16_t* r = i->op_registers + *m;
 
-      printf("%s value: 0x%02x\n", REGISTER_NAMES[*m], *r);
-    } DISPATCH;
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp < i->max_stack_address - 2, "Stack overflow: Cannot push 2 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    
+    uint16_t* s = *rsp;
+    *rsp = *rsp + 2;
 
+    *s = *r;
 
-    LOAD8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
+    m_debug_message("PUSH2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+  } DISPATCH;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
+  PUSH1: {
+    uint8_t* m = Interpreter_advance(i, 1);
+    m_validate_reg(m, 1);
+    
+    uint8_t* r = i->op_registers + *m;
 
-      uint64_t* ra = i->op_registers + *ma;
-      uint8_t** rb = i->op_registers + *mb;
-      int64_t*  of = Interpreter_advance(i, 8);
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp < i->max_stack_address - 1, "Stack overflow: Cannot push 1 byte value to stack of max size %llu", (uint64_t) i->max_stack_address);
+    
+    uint8_t* s = *rsp;
+    *rsp = *rsp + 1;
 
-      uint64_t* mem = *rb + *of;
+    *s = *r;
 
-      // TODO mem range check
+    m_debug_message("PUSH1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+  } DISPATCH;
 
-      *ra = *mem;
 
-      m_debug_message("LOAD8 %s, %s + %lld (=0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } DISPATCH;
+  CALL: {
+    uint64_t* a = Interpreter_advance(i, 8);
+    
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp <= i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte return address to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
 
-    LOAD4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
+    uint64_t* s = *rsp;
+    *rsp = *rsp + 8;
+    *s = (uint64_t) i->ip;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
+    i->ip = i->instructions + *a;
 
-      uint32_t* ra = i->op_registers + *ma;
-      uint8_t** rb = i->op_registers + *mb;
-      int64_t*  of = Interpreter_advance(i, 8);
+    m_validate_ip(i);
 
-      uint32_t* mem = *rb + *of;
+    m_debug_message("CALL %llu (from %llu)", (uint64_t) i->ip, *s);
+  } DISPATCH;
 
-      // TODO mem range check
+  RET: {
+    uint8_t** rsp = i->op_registers + RSP;
+    m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
 
-      *ra = *mem;
+    *rsp = *rsp - 8;
+    uint8_t** a = *rsp;
 
-      m_debug_message("LOAD4 %s, %s + %lld (=0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } DISPATCH;
+    uint8_t* o_ip = i->ip;
 
-    LOAD2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
+    i->ip = *a;
 
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
+    m_validate_ip(i);
 
-      uint16_t* ra = i->op_registers + *ma;
-      uint8_t** rb = i->op_registers + *mb;
-      int64_t*  of = Interpreter_advance(i, 8);
+    m_debug_message("RET %llu (from %llu)", (uint64_t) i->ip, (uint64_t) o_ip);
+  } DISPATCH;
 
-      uint16_t* mem = *rb + *of;
-
-      // TODO mem range check
-
-      *ra = *mem;
-
-      m_debug_message("LOAD2 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } DISPATCH;
-
-    LOAD1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
-
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
-
-      uint8_t*  ra = i->op_registers + *ma;
-      uint8_t** rb = i->op_registers + *mb;
-      int64_t*  of = Interpreter_advance(i, 8);
-
-      uint8_t* mem = *rb + *of;
-
-      // TODO mem range check
-
-      *ra = *mem;
-
-      m_debug_message("LOAD1 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
-    } DISPATCH;
-
-
-    STORE8: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 8);
-
-      int64_t* of = Interpreter_advance(i, 8);
-
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 8);
-
-      uint8_t** ra = i->op_registers + *ma;
-      uint64_t* rb = i->op_registers + *mb;
-
-      uint64_t* mem = *ra + *of;
-
-      // TODO mem range check
-
-      *mem = *rb;
-
-      m_debug_message("STORE8 %s + %lld, %s (=0x%016llx)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } DISPATCH;
-
-    STORE4: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 4);
-
-      int64_t* of = Interpreter_advance(i, 8);
-
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 4);
-
-      uint8_t** ra = i->op_registers + *ma;
-      uint32_t* rb = i->op_registers + *mb;
-
-      uint32_t* mem = *ra + *of;
-
-      // TODO mem range check
-
-      *mem = *rb;
-
-      m_debug_message("STORE4 %s + %lld, %s (=0x%08x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } DISPATCH;
-
-    STORE2: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 2);
-
-      int64_t* of = Interpreter_advance(i, 8);
-
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 2);
-
-      uint8_t** ra = i->op_registers + *ma;
-      uint16_t* rb = i->op_registers + *mb;
-
-      uint16_t* mem = *ra + *of;
-
-      // TODO mem range check
-
-      *mem = *rb;
-
-      m_debug_message("STORE2 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } DISPATCH;
-
-    STORE1: {
-      uint8_t* ma = Interpreter_advance(i, 1);
-      m_validate_reg(ma, 1);
-
-      int64_t* of = Interpreter_advance(i, 8);
-
-      uint8_t* mb = Interpreter_advance(i, 1);
-      m_validate_reg(mb, 1);
-
-      uint8_t** ra = i->op_registers + *ma;
-      uint8_t* rb = i->op_registers + *mb;
-
-      uint8_t* mem = *ra + *of;
-
-      // TODO mem range check
-
-      *mem = *rb;
-
-      m_debug_message("STORE1 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
-    } DISPATCH;
-
-
-    POP8: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 8);
-      
-      uint64_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte value from stack of size %llu", *rsp - i->stack);
-      
-      *rsp = *rsp - 8;
-      *r = *(uint64_t*) *rsp;
-
-      m_debug_message("POP8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } DISPATCH;
-
-    POP4: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 4);
-      
-      uint32_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp >= i->stack + 4, "Stack underflow: Cannot pop 4 byte value from stack of size %llu", *rsp - i->stack);
-      
-      *rsp = *rsp - 4;
-      *r = *(uint32_t*) *rsp;
-
-      m_debug_message("POP4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } DISPATCH;
-
-    POP2: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 2);
-      
-      uint16_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp >= i->stack + 2, "Stack underflow: Cannot pop 2 byte value from stack of size %llu", *rsp - i->stack);
-      
-      *rsp = *rsp - 2;
-      *r = *(uint16_t*) *rsp;
-
-      m_debug_message("POP2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } DISPATCH;
-
-    POP1: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 1);
-      
-      uint8_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp >= i->stack + 1, "Stack underflow: Cannot pop 1 byte value from stack of size 0");
-      
-      *rsp = *rsp - 1;
-      *r = **rsp;
-
-      m_debug_message("POP1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
-    } DISPATCH;
-
-
-    PUSH8: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 8);
-      
-      uint64_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp < i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
-      
-      uint64_t* s = *rsp;
-      *rsp = *rsp + 8;
-
-      *s = *r;
-
-      m_debug_message("PUSH8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } DISPATCH;
-
-    PUSH4: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 4);
-      
-      uint32_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp < i->max_stack_address - 4, "Stack overflow: Cannot push 4 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
-      
-      uint32_t* s = *rsp;
-      *rsp = *rsp + 4;
-
-      *s = *r;
-
-      m_debug_message("PUSH4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } DISPATCH;
-
-    PUSH2: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 2);
-      
-      uint16_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp < i->max_stack_address - 2, "Stack overflow: Cannot push 2 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
-      
-      uint16_t* s = *rsp;
-      *rsp = *rsp + 2;
-
-      *s = *r;
-
-      m_debug_message("PUSH2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } DISPATCH;
-
-    PUSH1: {
-      uint8_t* m = Interpreter_advance(i, 1);
-      m_validate_reg(m, 1);
-      
-      uint8_t* r = i->op_registers + *m;
-
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp < i->max_stack_address - 1, "Stack overflow: Cannot push 1 byte value to stack of max size %llu", (uint64_t) i->max_stack_address);
-      
-      uint8_t* s = *rsp;
-      *rsp = *rsp + 1;
-
-      *s = *r;
-
-      m_debug_message("PUSH1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
-    } DISPATCH;
-
-
-    CALL: {
-      uint64_t* a = Interpreter_advance(i, 8);
-      
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp <= i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte return address to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
-
-      uint64_t* s = *rsp;
-      *rsp = *rsp + 8;
-      *s = (uint64_t) i->ip;
-
-      i->ip = i->instructions + *a;
-
-      m_validate_ip(i);
-
-      m_debug_message("CALL %llu (from %llu)", (uint64_t) i->ip, *s);
-    } DISPATCH;
-
-    RET: {
-      uint8_t** rsp = i->op_registers + RSP;
-      m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
-
-      *rsp = *rsp - 8;
-      uint8_t** a = *rsp;
-
-      uint8_t* o_ip = i->ip;
-
-      i->ip = *a;
-
-      m_validate_ip(i);
-
-      m_debug_message("RET %llu (from %llu)", (uint64_t) i->ip, (uint64_t) o_ip);
-    } DISPATCH;
-
-    HALT: return;
-  }
+  HALT: return;
 }
