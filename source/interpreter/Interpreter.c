@@ -296,7 +296,7 @@ void Interpreter_run (Interpreter* i) {
 
 
   DISPATCH;
-
+  
 
   NO_OP: {
     m_debug_message("NO_OP");
