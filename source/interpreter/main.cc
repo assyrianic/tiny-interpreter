@@ -38,7 +38,7 @@ Program encode (A ... args) {
 
 
 int main (int argc, char** args) {
-  Interpreter I = Interpreter_create(DEFAULT_STACK_SIZE);
+  Interpreter I;
 
   using namespace Register;
   using namespace Instruction;
@@ -81,7 +81,7 @@ int main (int argc, char** args) {
     RET
   );
 
-  Interpreter_load_program(&I, fib);
+  I.load_program(fib);
 
   
   typedef int (*fib_t) (int, void*);
@@ -91,7 +91,7 @@ int main (int argc, char** args) {
   };
 
   
-  Interpreter_run(&I);
+  I.run();
   printf("fib_i(%d) = %llu\n", N, *(uint64_t*) I.op_registers + RAX);
   printf("fib_s(%d) = %d\n", N, fib_s(N, (void*) fib_s));
   
@@ -101,12 +101,11 @@ int main (int argc, char** args) {
   // printf("Baseline Timing result: "); timing_result_s.print(10); putchar('\n');
 
 
-
-  Interpreter_clear(&I);
+  I.clear();
   printf("Interpreter speed test:\n");
-  TimingResult timing_result_i = test_timing(10, 1000, [&] () { Interpreter_run(&I); }, [&] () { Interpreter_clear(&I); }, true, false);
+  TimingResult timing_result_i = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
   printf("Interpreter Timing result: "); timing_result_i.print(10); putchar('\n');
 
-  
-  Interpreter_dispose(&I);
+
+  I.dispose();
 }

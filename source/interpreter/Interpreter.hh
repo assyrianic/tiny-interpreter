@@ -111,9 +111,33 @@ namespace Instruction {
   };
 }
 
+
 static constexpr size_t DEFAULT_STACK_SIZE = 1024*1024;
 
+extern "C" const char * REGISTER_NAMES [128];
+extern "C" uint8_t REGISTER_SIZES [128];
+
+
+struct Interpreter;
+
 typedef struct {
+  uint8_t* instructions;
+  size_t instructions_length;
+} Program;
+
+
+// extern "C" void Interpreter_init_stack (Interpreter* i, size_t stack_size);
+extern "C" void Interpreter_clear (Interpreter* i);
+extern "C" void Interpreter_init (Interpreter* i, size_t stack_size);
+// extern "C" Interpreter Interpreter_create (size_t stack_size); // NOTE: (works but gives a warning, could create a cInterpreter struct with casting overloads but meh)
+extern "C" void Interpreter_dispose (Interpreter* i);
+extern "C" void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instructions_length);
+extern "C" void Interpreter_load_program (Interpreter* i, Program p);
+// extern "C" void* Interpreter_advance (Interpreter* i, int64_t offset);
+extern "C" void Interpreter_run (Interpreter* i);
+
+
+struct Interpreter {
   uint8_t* instructions;
   uint8_t* max_instruction_address;
 
@@ -124,24 +148,16 @@ typedef struct {
 
   int8_t cmp;
   uint8_t* ip;
-} Interpreter;
 
+  inline Interpreter () { Interpreter_init(this, DEFAULT_STACK_SIZE); }
+  inline Interpreter (size_t stack_size) { Interpreter_init(this, stack_size); }
 
-typedef struct {
-  uint8_t* instructions;
-  size_t instructions_length;
-} Program;
+  inline void dispose () { Interpreter_dispose(this); }
 
+  inline void clear () { Interpreter_clear(this); }
 
-const char * REGISTER_NAMES [128];
-uint8_t REGISTER_SIZES [128];
+  inline void load (uint8_t* instructions, size_t instructions_length) { Interpreter_load(this, instructions, instructions_length); }
+  inline void load_program (Program& p) { Interpreter_load_program(this, p); }
 
-extern "C" void Interpreter_init_stack (Interpreter* i, size_t stack_size);
-extern "C" void Interpreter_clear (Interpreter* i);
-extern "C" void Interpreter_init (Interpreter* i, size_t stack_size);
-extern "C" Interpreter Interpreter_create (size_t stack_size);
-extern "C" void Interpreter_dispose (Interpreter* i);
-extern "C" void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instructions_length);
-extern "C" void Interpreter_load_program (Interpreter* i, Program p);
-extern "C" void* Interpreter_advance (Interpreter* i, int64_t offset);
-extern "C" void Interpreter_run (Interpreter* i);
+  inline void run () { Interpreter_run(this); }
+};
