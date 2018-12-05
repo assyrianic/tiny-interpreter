@@ -1080,9 +1080,9 @@ int main (int argc, char** args) {
   printf("fib_s(%d) = %d\n", N, fib_s(N, (void*) fib_s));
 
 
-  I.clear();
-  TimingResult switch_result   = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
-  printf("Switch timing: "); switch_result.print(10); putchar('\n');
+  // I.clear();
+  // TimingResult switch_result   = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
+  // printf("Switch timing: "); switch_result.print(10); putchar('\n');
 
   
   I.dispose(true);
