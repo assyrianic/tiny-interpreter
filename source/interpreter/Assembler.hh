@@ -91,12 +91,14 @@ namespace ti {
 
     Program finalize () {
       uint8_t* out = data;
+      uint64_t size = len;
       data = NULL;
+
+      if (size < cap) out = (uint8_t*) realloc(out, len);
+
       dispose();
-
-      if (len < cap) out = (uint8_t*) realloc(out, len);
-
-      return { out, len };
+      
+      return { out, size };
     }
   };
 
