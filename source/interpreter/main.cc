@@ -19,11 +19,7 @@ int main (int argc, char** args) {
     LIT8 { R9, (int64_t) 2 },
     LIT8 { R10, (int64_t) 16 },
 
-<<<<<<< HEAD
     CALL { "fib" },
-=======
-    CALL { "dix" },
->>>>>>> da2fe8653ff67477803003ba97426b5392bcdc6d
     HALT,
     
   LABEL { "fib" },
