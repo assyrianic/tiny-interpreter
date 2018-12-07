@@ -1,8 +1,10 @@
 #pragma once
 
+
 #include <cstdint>
 #include <cmath>
 #include "windows.h"
+
 
 template <typename T, typename ... A>
 T min_num (T arg0, A ... args) {

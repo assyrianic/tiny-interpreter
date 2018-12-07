@@ -219,7 +219,7 @@ uint8_t INSTRUCTION_DATA_SIZES [INSTRUCTION_COUNT] = {
   [PUSH4] = 1,
   [PUSH2] = 1,
   [PUSH1] = 1,
-  
+
   [POP8] = 1,
   [POP4] = 1,
   [POP2] = 1,
@@ -256,6 +256,7 @@ void Interpreter_init_stack (Interpreter* i, size_t stack_size) {
   i->max_stack_address = i->stack + stack_size;
 }
 
+
 inline extern
 void Interpreter_clear (Interpreter* i) {
   memset(i->op_registers, 0, 128);
@@ -267,6 +268,7 @@ void Interpreter_clear (Interpreter* i) {
   i->cmp = 0;
 }
 
+
 inline extern
 void Interpreter_init (Interpreter* i, size_t stack_size) {
   i->instructions = NULL;
@@ -277,6 +279,7 @@ void Interpreter_init (Interpreter* i, size_t stack_size) {
   Interpreter_clear(i);
 }
 
+
 inline extern
 Interpreter Interpreter_create (size_t stack_size) {
   Interpreter i;
@@ -285,6 +288,7 @@ Interpreter Interpreter_create (size_t stack_size) {
 
   return i;
 }
+
 
 inline extern
 void Interpreter_dispose (Interpreter* i) {
@@ -311,6 +315,7 @@ void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instruction
   i->max_instruction_address = instructions + instructions_length;
   i->ip = instructions;
 }
+
 
 inline extern
 void Interpreter_load_program (Interpreter* i, Program p) {

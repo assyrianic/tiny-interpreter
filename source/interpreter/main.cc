@@ -3,8 +3,6 @@
 #include "time.hh"
 
 
-
-
 int main (int argc, char** args) {
   ti::Interpreter I;
 

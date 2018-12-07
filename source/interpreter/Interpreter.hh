@@ -115,11 +115,14 @@ namespace ti {
     uint8_t LABEL = INSTRUCTION_COUNT;
   }
 
+
   static constexpr size_t DEFAULT_STACK_SIZE = 1024*1024;
+
 
   extern "C" const char * REGISTER_NAMES [128];
   extern "C" uint8_t REGISTER_SIZES [128];
   extern "C" uint8_t INSTRUCTION_DATA_SIZES [Instruction::INSTRUCTION_COUNT];
+
 
   struct Interpreter;
 
@@ -151,6 +154,7 @@ namespace ti {
 
     int8_t cmp;
     uint8_t* ip;
+    
 
     inline Interpreter () { Interpreter_init(this, DEFAULT_STACK_SIZE); }
     inline Interpreter (size_t stack_size) { Interpreter_init(this, stack_size); }

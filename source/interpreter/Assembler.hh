@@ -194,6 +194,7 @@ namespace ti {
     Instruction::CALL
   };
 
+
   struct LabelableLiteral {
     uint8_t destination;
     Labelable value;
@@ -280,6 +281,7 @@ namespace ti {
 
       LabelName LABEL;
     };
+
 
     void encode (Encoder* encoder, uint64_t address, map<LabelName, uint64_t>* label_addresses) {
       m_panic_assert(type <= Instruction::LABEL, "Cannot encode unrecognized instruction type %u", type);
@@ -392,6 +394,7 @@ namespace ti {
       m_panic_assert(len <= MAX_LABEL_LENGTH, "Cannot create label with len %llu, max is %u", len, MAX_LABEL_LENGTH);
       memcpy(LABEL.data, in_label_name, len);
     }
+
 
     bool is_labelable () {
       for (uint8_t i = 0; i < LABELABLE_COUNT; i ++) {
@@ -531,6 +534,7 @@ namespace ti {
     PData (A ... args)
     : instruction_data { args... }
     { }
+
 
     Program finalize () {
       Encoder encoder;
