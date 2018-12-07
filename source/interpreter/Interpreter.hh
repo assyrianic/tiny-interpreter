@@ -110,13 +110,16 @@ namespace ti {
 
       INSTRUCTION_COUNT
     };
+    
+    static constexpr
+    uint8_t LABEL = INSTRUCTION_COUNT;
   }
 
   static constexpr size_t DEFAULT_STACK_SIZE = 1024*1024;
 
   extern "C" const char * REGISTER_NAMES [128];
   extern "C" uint8_t REGISTER_SIZES [128];
-
+  extern "C" uint8_t INSTRUCTION_DATA_SIZES [Instruction::INSTRUCTION_COUNT];
 
   struct Interpreter;
 
