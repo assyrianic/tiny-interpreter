@@ -1,85 +1,57 @@
 #include "Interpreter.hh"
+#include "Assembler.hh"
 #include "time.hh"
 
-template <typename T>
-uint8_t* encode_value (uint8_t*& dest, size_t& cap, size_t& len, T& v) {
-  static constexpr
-  size_t size = sizeof(T);
 
-  size_t ncap = cap;
-  
-  while (ncap < len + size) ncap *= 2;
-  
-  if (cap < ncap) {
-    cap = ncap;
-    dest = (uint8_t*) realloc(dest, cap);
-  }
-
-  uint8_t* vp = dest + len;
-  memcpy(dest + len, &v, size);
-
-  len += size;
-
-  return vp;
-}
-
-template <typename ... A>
-ti::Program encode (A ... args) {
-  auto data = (uint8_t*) malloc(16);
-  size_t cap = 16;
-  size_t len = 0;
-
-  uint8_t* ps [] = { encode_value(data, cap, len, args)... };
-
-  if (len < cap) data = (uint8_t*) realloc(data, len);
-
-  return { data, len };
-}
 
 
 int main (int argc, char** args) {
   ti::Interpreter I;
 
   using namespace ti::Register;
-  using namespace ti::Instruction;
+  using namespace ti::InstructionBuilders;
 
   constexpr int N = 34;
 
-  auto fib = encode(
-    LIT8, RCX, (uint64_t) N, //10
-    LIT8, R8,  (uint64_t) 1, //10 + 10 = 20
-    LIT8, R9,  (int64_t)  2, //20 + 10 = 30
-    LIT8, R10, (int64_t) 16, //30 + 10 = 40
+  ti::Program fib = ti::PData {
+    LIT8 { RCX, (uint64_t) N },
+    LIT8 { R8, (uint64_t) 1 },
+    LIT8 { R9, (int64_t) 2 },
+    LIT8 { R10, (int64_t) 16 },
 
-
-    CALL, (size_t) 50, // 9 + 40 = 49
-    //PRINT8, RAX, // 49 + 2 = 51
-    HALT, // 51 + 1 = 52 (-2 without print = 50)
-
-    // fibonacci:
-    CMP8, RCX, R8,
-    JGT, (int64_t) 4, // return N if N <= 1
-    MOV8, RAX, RCX,
+    CALL { "dix" },
+    HALT,
+    
+  LABEL { "fib" },
+    // Return N if N <= 1
+    CMP8 { RCX, R8 },
+    JGT { "fib_body" },
+    MOV8 { RAX, RCX },
     RET,
 
-    ADD8, RSP, R10, // push 16 bytes
-    STORE8, RSP, (int64_t) -16, RCX,  // save N
+  LABEL { "fib_body" },
+    // Stack allocate and save N
+    ADD8 { RSP, R10 },
+    STORE8 { RSP, (int64_t) -16, RCX },
+
+    // N - 1
+    SUB8 { RCX, R8 }, // subtract 1
+    CALL { (uint64_t) 50 }, // Compute N-1
+    STORE8 { RSP, (int64_t) -8, RAX }, // save N-1
     
-    SUB8, RCX, R8, // subtract 1
-    CALL, (size_t) 50, // Compute N-1
-    STORE8, RSP, (int64_t) -8, RAX, // save N-1
+    // N - 2
+    LOAD8 { RCX, RSP, (int64_t) -16 }, // restore N
+    SUB8 { RCX, R9 }, // subtract 2
+    CALL { (uint64_t) 50 }, // Compute N-2
 
-    LOAD8, RCX, RSP, (int64_t) -16, // restore N
-    SUB8, RCX, R9, // subtract 2
-    CALL, (size_t) 50, // Compute N-2
+    // Add results
+    LOAD8 { RCX, RSP, (int64_t) -8 }, // restore N-1
+    ADD8 { RAX, RCX }, // N-1 + N-2
 
-    LOAD8, RCX, RSP, (int64_t) -8, // restore N-1
-    ADD8, RAX, RCX, // N-1 + N-2
-
-    SUB8, RSP, R10, // pop 16 bytes
-
+    // Restore stack and return
+    SUB8 { RSP, R10 },
     RET
-  );
+  }.finalize();
 
   I.load_program(fib);
 

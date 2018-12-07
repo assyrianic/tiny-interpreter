@@ -159,6 +159,77 @@ uint8_t REGISTER_SIZES [128] = {
   [AL]  = 1, [CL]  = 1, [DL]  = 1, [BL]  = 1, [SIL] = 1, [DIL] = 1, [SPL] = 1, [BPL] = 1, [R8B] = 1, [R9B] = 1, [R10B] = 1, [R11B] = 1, [R12B] = 1, [R13B] = 1, [R14B] = 1, [R15B] = 1
 };
 
+uint8_t INSTRUCTION_DATA_SIZES [INSTRUCTION_COUNT] = {
+  [NO_OP] = 0,
+
+  [LIT8] = 1 + 8,
+  [LIT4] = 1 + 4,
+  [LIT2] = 1 + 2,
+  [LIT1] = 1 + 1,
+
+  [CLR8] = 1,
+  [CLR4] = 1,
+  [CLR2] = 1,
+  [CLR1] = 1,
+
+  [MOV8] = 1 + 1,
+  [MOV4] = 1 + 1,
+  [MOV2] = 1 + 1,
+  [MOV1] = 1 + 1,
+
+  [ADD8] = 1 + 1,
+  [ADD4] = 1 + 1,
+  [ADD2] = 1 + 1,
+  [ADD1] = 1 + 1,
+
+  [SUB8] = 1 + 1,
+  [SUB4] = 1 + 1,
+  [SUB2] = 1 + 1,
+  [SUB1] = 1 + 1,
+
+  [CMP8] = 1 + 1,
+  [CMP4] = 1 + 1,
+  [CMP2] = 1 + 1,
+  [CMP1] = 1 + 1,
+
+  [JMP] = 8,
+  [JEQ] = 8,
+  [JNE] = 8,
+  [JGE] = 8,
+  [JLE] = 8,
+  [JGT] = 8,
+  [JLT] = 8,
+
+  [PRINT8] = 1,
+  [PRINT4] = 1,
+  [PRINT2] = 1,
+  [PRINT1] = 1,
+
+  [LOAD8] = 1 + 1 + 8,
+  [LOAD4] = 1 + 1 + 8,
+  [LOAD2] = 1 + 1 + 8,
+  [LOAD1] = 1 + 1 + 8,
+
+  [STORE8] = 1 + 1 + 8,
+  [STORE4] = 1 + 1 + 8,
+  [STORE2] = 1 + 1 + 8,
+  [STORE1] = 1 + 1 + 8,
+
+  [PUSH8] = 1,
+  [PUSH4] = 1,
+  [PUSH2] = 1,
+  [PUSH1] = 1,
+  
+  [POP8] = 1,
+  [POP4] = 1,
+  [POP2] = 1,
+  [POP1] = 1,
+
+  [CALL] = 8,
+  [RET] = 0,
+  [HALT] = 0
+};
+
 
 #define m_validate_ip(i) \
   m_safemode_assert( \
