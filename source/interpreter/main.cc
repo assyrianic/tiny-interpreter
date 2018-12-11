@@ -12,10 +12,10 @@ int main (int argc, char** args) {
   constexpr int N = 34;
 
   ti::Program fib = ti::PData {
-    LIT8 { RCX, (uint64_t) N },
-    LIT8 { R8, (uint64_t) 1 },
-    LIT8 { R9, (int64_t) 2 },
-    LIT8 { R10, (int64_t) 16 },
+    LIT8 { RCX, N },
+    LIT8 { R8, 1 },
+    LIT8 { R9, 2 },
+    LIT8 { R10, 16 },
 
     CALL { "fib" },
     HALT,
@@ -30,20 +30,20 @@ int main (int argc, char** args) {
   LABEL { "fib_body" },
     // Stack allocate and save N
     ADD8 { RSP, R10 },
-    STORE8 { RSP, (int64_t) -16, RCX },
+    STORE8 { RSP, -16, RCX },
 
     // N - 1
     SUB8 { RCX, R8 }, // subtract 1
-    CALL { (uint64_t) 50 }, // Compute N-1
-    STORE8 { RSP, (int64_t) -8, RAX }, // save N-1
+    CALL { "fib" }, // Compute N-1
+    STORE8 { RSP, -8, RAX }, // save N-1
     
     // N - 2
-    LOAD8 { RCX, RSP, (int64_t) -16 }, // restore N
+    LOAD8 { RCX, RSP, -16 }, // restore N
     SUB8 { RCX, R9 }, // subtract 2
-    CALL { (uint64_t) 50 }, // Compute N-2
+    CALL { "fib" }, // Compute N-2
 
     // Add results
-    LOAD8 { RCX, RSP, (int64_t) -8 }, // restore N-1
+    LOAD8 { RCX, RSP, -8 }, // restore N-1
     ADD8 { RAX, RCX }, // N-1 + N-2
 
     // Restore stack and return
