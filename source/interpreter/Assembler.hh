@@ -422,7 +422,7 @@ namespace ti {
   };
 
 
-  namespace InstructionBuilders {
+  namespace InstructionBuilder {
     static
     IData NO_OP;
 

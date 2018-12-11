@@ -7,7 +7,7 @@ int main (int argc, char** args) {
   ti::Interpreter I;
 
   using namespace ti::Register;
-  using namespace ti::InstructionBuilders;
+  using namespace ti::InstructionBuilder;
 
   constexpr int N = 34;
 
