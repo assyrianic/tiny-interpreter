@@ -16,8 +16,8 @@
         "-Wno-incompatible-pointer-types",
         "-Fobuild/Interpreter",
 
-        // "-DSAFE_MODE",
-        // "-DDEBUG_MODE"
+        "-DTI_SAFE_MODE",
+        // "-DTI_DEBUG_MODE"
       ]
     },
     {

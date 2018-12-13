@@ -4,7 +4,8 @@
 
 
 int main (int argc, char** args) {
-  ti::Interpreter I;
+  ti::Allocator A { 1024 * 1024 * 1024, 24 };
+  ti::Interpreter I { &A };
 
   using namespace ti::Register;
   using namespace ti::InstructionBuilder;
@@ -49,7 +50,7 @@ int main (int argc, char** args) {
     // Restore stack and return
     SUB8 { RSP, R10 },
     RET
-  }.finalize();
+  }.finalize(&A);
 
   I.load_program(fib);
 

@@ -44,17 +44,26 @@ namespace ti {
 
 
   struct Encoder {
-    uint8_t* data = (uint8_t*) malloc(16);
-    size_t cap = 16;
+    Allocator* allocator = NULL;
+    uint8_t* data = NULL;
+    size_t cap = 0;
     size_t len = 0;
+
+    Encoder (Allocator* in_allocator)
+    : allocator(in_allocator)
+    , data((uint8_t*) in_allocator->allocate(16))
+    , cap(16)
+    , len(0)
+    { }
 
     void dispose () {
       if (data != NULL) {
-        free(data);
+        allocator->deallocate(data);
         data = NULL;
       }
       cap = 0;
       len = 0;
+      allocator = NULL;
     }
 
     ~Encoder () {
@@ -68,7 +77,7 @@ namespace ti {
       
       if (cap < ncap) {
         cap = ncap;
-        data = (uint8_t*) realloc(data, cap);
+        data = (uint8_t*) allocator->reallocate(data, cap);
       }
 
       uint8_t* vp = data + len;
@@ -94,7 +103,7 @@ namespace ti {
       uint64_t size = len;
       data = NULL;
 
-      if (size < cap) out = (uint8_t*) realloc(out, len);
+      if (size < cap) out = (uint8_t*) allocator->reallocate(out, len);
 
       dispose();
       
@@ -538,8 +547,8 @@ namespace ti {
     { }
 
 
-    Program finalize () {
-      Encoder encoder;
+    Program finalize (Allocator* allocator) {
+      Encoder encoder { allocator };
 
       uint64_t total_length = 0;
       uint64_t encoded_length = 0;

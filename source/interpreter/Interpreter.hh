@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base.h"
+#include "Allocator.hh"
 
 
 namespace ti {
@@ -134,16 +135,17 @@ namespace ti {
 
   // extern "C" void Interpreter_init_stack (Interpreter* i, size_t stack_size);
   extern "C" void Interpreter_clear (Interpreter* i);
-  extern "C" void Interpreter_init (Interpreter* i, size_t stack_size);
-  // extern "C" Interpreter Interpreter_create (size_t stack_size); // NOTE: (works but gives a warning, could create a cInterpreter struct with casting overloads but meh)
+  extern "C" void Interpreter_init (Interpreter* i, Allocator* allocator, size_t stack_size);
+  // extern "C" Interpreter Interpreter_create (Allocator* allocator, size_t stack_size); // NOTE: (works but gives a warning, could create a cInterpreter struct with casting overloads but meh)
   extern "C" void Interpreter_dispose (Interpreter* i);
   extern "C" void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instructions_length);
   extern "C" void Interpreter_load_program (Interpreter* i, Program p);
-  // extern "C" void* Interpreter_advance (Interpreter* i, int64_t offset);
   extern "C" void Interpreter_run (Interpreter* i);
 
 
   struct Interpreter {
+    Allocator* allocator;
+
     uint8_t* instructions;
     uint8_t* max_instruction_address;
 
@@ -156,8 +158,8 @@ namespace ti {
     uint8_t* ip;
     
 
-    inline Interpreter () { Interpreter_init(this, DEFAULT_STACK_SIZE); }
-    inline Interpreter (size_t stack_size) { Interpreter_init(this, stack_size); }
+    inline Interpreter (Allocator* allocator) { Interpreter_init(this, allocator, DEFAULT_STACK_SIZE); }
+    inline Interpreter (Allocator* allocator, size_t stack_size) { Interpreter_init(this, allocator, stack_size); }
 
     inline void dispose () { Interpreter_dispose(this); }
 

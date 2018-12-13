@@ -1,7 +1,8 @@
 #include "base.h"
+#include "Allocator.c"
 
 
-#ifdef SAFE_MODE
+#ifdef TI_SAFE_MODE
   #define m_safemode_error(fmt, ...) m_panic_error(fmt, __VA_ARGS__)
   #define m_safemode_assert(cond, fmt, ...) m_panic_assert(cond, fmt, __VA_ARGS__)
 #else
@@ -10,7 +11,7 @@
 #endif
 
 
-#ifdef DEBUG_MODE
+#ifdef TI_DEBUG_MODE
   #define m_debug_message(fmt, ...) { printf(fmt, __VA_ARGS__); putchar('\n'); }
 #else
   #define m_debug_message(fmt, ...)
@@ -56,13 +57,15 @@ typedef enum {
 
 
 typedef struct {
+  Allocator* allocator;
+
   uint8_t* instructions;
   uint8_t* max_instruction_address;
 
   uint8_t* stack;
   uint8_t* max_stack_address;
 
-  uint8_t op_registers [128];
+  uint8_t* op_registers;
 
   int8_t cmp;
   uint8_t* ip;
@@ -210,10 +213,10 @@ uint8_t INSTRUCTION_DATA_SIZES [INSTRUCTION_COUNT] = {
   [LOAD2] = 1 + 1 + 8,
   [LOAD1] = 1 + 1 + 8,
 
-  [STORE8] = 1 + 1 + 8,
-  [STORE4] = 1 + 1 + 8,
-  [STORE2] = 1 + 1 + 8,
-  [STORE1] = 1 + 1 + 8,
+  [STORE8] = 1 + 8 + 1,
+  [STORE4] = 1 + 8 + 1,
+  [STORE2] = 1 + 8 + 1,
+  [STORE1] = 1 + 8 + 1,
 
   [PUSH8] = 1,
   [PUSH4] = 1,
@@ -252,7 +255,7 @@ uint8_t INSTRUCTION_DATA_SIZES [INSTRUCTION_COUNT] = {
 
 inline extern
 void Interpreter_init_stack (Interpreter* i, size_t stack_size) {
-  i->stack = calloc(1, stack_size);
+  i->stack = Allocator_allocate(i->allocator, stack_size);
   i->max_stack_address = i->stack + stack_size;
 }
 
@@ -270,7 +273,11 @@ void Interpreter_clear (Interpreter* i) {
 
 
 inline extern
-void Interpreter_init (Interpreter* i, size_t stack_size) {
+void Interpreter_init (Interpreter* i, Allocator* allocator, size_t stack_size) {
+  i->allocator = allocator;
+
+  i->op_registers = Allocator_allocate(i->allocator, 128);
+
   i->instructions = NULL;
   i->max_instruction_address = 0;
 
@@ -281,10 +288,10 @@ void Interpreter_init (Interpreter* i, size_t stack_size) {
 
 
 inline extern
-Interpreter Interpreter_create (size_t stack_size) {
+Interpreter Interpreter_create (Allocator* allocator, size_t stack_size) {
   Interpreter i;
   
-  Interpreter_init(&i, stack_size);
+  Interpreter_init(&i, allocator, stack_size);
 
   return i;
 }
@@ -292,25 +299,34 @@ Interpreter Interpreter_create (size_t stack_size) {
 
 inline extern
 void Interpreter_dispose (Interpreter* i) {
+  if (i->op_registers != NULL) {
+    Allocator_deallocate(i->allocator, i->op_registers);
+    i->op_registers = NULL;
+  }
+
   if (i->instructions != NULL) {
-    free(i->instructions);
+    Allocator_deallocate(i->allocator, i->instructions);
     i->instructions = NULL;
     i->ip = NULL;
     i->max_instruction_address = NULL;
   }
 
   if (i->stack != NULL) {
-    free(i->stack);
+    Allocator_deallocate(i->allocator, i->stack);
     i->stack = NULL;
     *(uint8_t**) (i->op_registers + RSP) = NULL;
     *(uint8_t**) (i->op_registers + RBP) = NULL;
     i->max_stack_address = NULL;
   }
+
+  i->allocator = NULL;
 }
 
 
 inline extern
 void Interpreter_load (Interpreter* i, uint8_t* instructions, size_t instructions_length) {
+  m_panic_assert(Allocator_contains_address(i->allocator, instructions), "Cannot load program: Program data must be allocated by the interpreter's internal allocator");
+
   i->instructions = instructions;
   i->max_instruction_address = instructions + instructions_length;
   i->ip = instructions;
@@ -324,7 +340,7 @@ void Interpreter_load_program (Interpreter* i, Program p) {
 
 
 
-inline extern
+inline
 void* Interpreter_advance (Interpreter* i, int64_t offset) {
   void* ip = i->ip;
 
@@ -870,7 +886,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint64_t* mem = *rb + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 8),
+      "Cannot load from memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *ra = *mem;
 
@@ -890,7 +911,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint32_t* mem = *rb + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 4),
+      "Cannot load from memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *ra = *mem;
 
@@ -910,7 +936,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint16_t* mem = *rb + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 2),
+      "Cannot load from memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *ra = *mem;
 
@@ -930,7 +961,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint8_t* mem = *rb + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 1),
+      "Cannot load from memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *ra = *mem;
 
@@ -952,7 +988,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint64_t* mem = *ra + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 8),
+      "Cannot store to memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *mem = *rb;
 
@@ -973,7 +1014,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint32_t* mem = *ra + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 4),
+      "Cannot store to memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *mem = *rb;
 
@@ -994,7 +1040,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint16_t* mem = *ra + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 2),
+      "Cannot store to memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *mem = *rb;
 
@@ -1015,7 +1066,12 @@ void Interpreter_run (Interpreter* i) {
 
     uint8_t* mem = *ra + *of;
 
-    // TODO mem range check
+    m_safemode_assert(
+      Allocator_contains_address_range(i->allocator, mem, 1),
+      "Cannot store to memory (%p -> %p) not controlled by interpreter's designated allocator (%p -> %p)",
+      mem, mem + 1,
+      i->allocator->memory, i->allocator->end
+    );
 
     *mem = *rb;
 
@@ -1030,7 +1086,7 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte value from stack of size %llu", *rsp - i->stack);
     
     *rsp = *rsp - 8;
     *r = *(uint64_t*) *rsp;
@@ -1045,7 +1101,7 @@ void Interpreter_run (Interpreter* i) {
     uint32_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 4, "Stack underflow: Cannot pop 4 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 4 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 4 byte value from stack of size %llu", *rsp - i->stack);
     
     *rsp = *rsp - 4;
     *r = *(uint32_t*) *rsp;
@@ -1060,7 +1116,7 @@ void Interpreter_run (Interpreter* i) {
     uint16_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 2, "Stack underflow: Cannot pop 2 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 2 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 2 byte value from stack of size %llu", *rsp - i->stack);
     
     *rsp = *rsp - 2;
     *r = *(uint16_t*) *rsp;
@@ -1075,7 +1131,7 @@ void Interpreter_run (Interpreter* i) {
     uint8_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 1, "Stack underflow: Cannot pop 1 byte value from stack of size 0");
+    m_safemode_assert(*rsp >= i->stack + 1 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 1 byte value from stack of size 0");
     
     *rsp = *rsp - 1;
     *r = **rsp;
@@ -1091,7 +1147,7 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
     
     uint64_t* s = *rsp;
     *rsp = *rsp + 8;
@@ -1108,7 +1164,7 @@ void Interpreter_run (Interpreter* i) {
     uint32_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 4, "Stack overflow: Cannot push 4 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 4 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 4 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
     
     uint32_t* s = *rsp;
     *rsp = *rsp + 4;
@@ -1125,7 +1181,7 @@ void Interpreter_run (Interpreter* i) {
     uint16_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 2, "Stack overflow: Cannot push 2 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 2 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 2 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
     
     uint16_t* s = *rsp;
     *rsp = *rsp + 2;
@@ -1142,7 +1198,7 @@ void Interpreter_run (Interpreter* i) {
     uint8_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 1, "Stack overflow: Cannot push 1 byte value to stack of max size %llu", (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 1 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 1 byte value to stack of max size %llu", (uint64_t) i->max_stack_address);
     
     uint8_t* s = *rsp;
     *rsp = *rsp + 1;
@@ -1157,7 +1213,7 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* a = Interpreter_advance(i, 8);
     
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp <= i->max_stack_address - 8, "Stack overflow: Cannot push 8 byte return address to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp <= i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte return address to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
 
     uint64_t* s = *rsp;
     *rsp = *rsp + 8;
@@ -1172,7 +1228,7 @@ void Interpreter_run (Interpreter* i) {
 
   RET: {
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 8, "Stack underflow: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
 
     *rsp = *rsp - 8;
     uint8_t** a = *rsp;
