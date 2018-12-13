@@ -1,5 +1,5 @@
 # tiny-interpreter
-Limited use interpreter project for fun / example purposes. Very fast, ~350ms for recursive `fib(34)`
+Limited use interpreter project for fun / example purposes. Very fast, ~350ms for recursive `fib(34)` without safe mode & ~500ms with safe mode
 
 ## Building
 VS Code build tasks are included for Clang, and currently this has only been tested on Windows.
