@@ -32,7 +32,7 @@
         "-Ot",
         "-Z7",
         "-Xclang", "-std=c++17",
-        "source/interpreter/main.cc",
+        "source/main.cc",
         "build/Interpreter.obj",
         "-obuild/main"
       ],

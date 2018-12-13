@@ -314,8 +314,6 @@ void Interpreter_dispose (Interpreter* i) {
   if (i->stack != NULL) {
     Allocator_deallocate(i->allocator, i->stack);
     i->stack = NULL;
-    *(uint8_t**) (i->op_registers + RSP) = NULL;
-    *(uint8_t**) (i->op_registers + RBP) = NULL;
     i->max_stack_address = NULL;
   }
 

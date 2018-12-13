@@ -1,4 +1,4 @@
-#include "Interpreter.hh"
+#include "interpreter/Interpreter.hh"
 #include "Assembler.hh"
 #include "time.hh"
 

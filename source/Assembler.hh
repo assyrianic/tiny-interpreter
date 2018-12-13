@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interpreter.hh"
+#include "interpreter/Interpreter.hh"
 
 #include <vector>
 #include <string>

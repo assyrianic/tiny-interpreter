@@ -9,8 +9,9 @@ namespace ti {
   struct Allocator;
   struct FreeNode;
 
-  void FreeNode_init (FreeNode* fn, size_t length, FreeNode* prev, FreeNode* next);
-  // FreeNode FreeNode_create (size_t length, FreeNode* prev, FreeNode* next); // NOTE: (works but gives a warning)
+
+  extern "C" void FreeNode_init (FreeNode* fn, size_t length, FreeNode* prev, FreeNode* next);
+  // extern "C" FreeNode FreeNode_create (size_t length, FreeNode* prev, FreeNode* next); // NOTE: (works but gives a warning)
 
   extern "C" void Allocator_init (Allocator* a, size_t max_memory, size_t block_size);
   // extern "C" Allocator Allocator_create (size_t max_memory, size_t block_size); // NOTE: (works but gives a warning)
