@@ -1,1 +1,7 @@
+build/*.obj
+build/*.exe
+build/*.ilk
+build/*.pdb
+build/*.dll
+
 local/*
