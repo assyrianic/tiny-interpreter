@@ -77,7 +77,7 @@ namespace ti {
 
   namespace Comparison {
     enum: uint8_t {
-      LT = -1,
+      LT = (uint8_t) -1,
       EQ = 0,
       GT = 1
     };
@@ -152,7 +152,7 @@ namespace ti {
     uint8_t* stack;
     uint8_t* max_stack_address;
 
-    uint8_t op_registers [128];
+    uint8_t* op_registers;
 
     int8_t cmp;
     uint8_t* ip;

@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build C Lib",
+      "label": "Build C Lib (Windows)",
       "type": "shell",
       "group": "build",
       "command": "clang-cl",
@@ -12,21 +12,37 @@
         "-Ot",
         "-Z7",
         "/c",
-        "source/interpreter/Interpreter.c",
         "-Wno-incompatible-pointer-types",
+        "source/interpreter/Interpreter.c",
         "-Fobuild/Interpreter",
 
         "-DTI_SAFE_MODE",
         // "-DTI_DEBUG_MODE"
-      ]
+      ],
+      "problemMatcher": []
     },
     {
-      "label": "Build Main",
+      "label": "Build C Lib (Linux)",
       "type": "shell",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
+      "command": "clang",
+      "args": [
+        "-Ofast",
+        "-c",
+        "-g",
+        "-Wno-incompatible-pointer-types",
+        "source/interpreter/Interpreter.c",
+        "-obuild/Interpreter.o",
+
+        "-DTI_SAFE_MODE",
+        // "-DTI_DEBUG_MODE"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Main (Windows)",
+      "type": "shell",
+      "group": "build",
       "command": "clang-cl",
       "args": [
         "-Ot",
@@ -36,12 +52,31 @@
         "build/Interpreter.obj",
         "-obuild/main"
       ],
-      "dependsOn": [ "Build C Lib" ]
+      "dependsOn": [ "Build C Lib (Windows)" ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Main (Linux)",
+      "type": "shell",
+      "group": "build",
+      "command": "clang++",
+      "args": [
+        "-Ofast",
+        "-g",
+        "-std=c++17",
+        "source/main.cc",
+        "build/Interpreter.o",
+        "-obuild/main"
+      ],
+      "dependsOn": [ "Build C Lib (Linux)" ],
+      "problemMatcher": []
     },
     {
       "label": "Run",
       "type": "shell",
-      "command": ".\\build\\main"
+      "group": "build",
+      "command": "./build/main",
+      "problemMatcher": []
     }
   ]
 }

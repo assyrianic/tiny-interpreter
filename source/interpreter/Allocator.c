@@ -42,7 +42,7 @@ typedef struct Allocator {
 
 inline extern
 void Allocator_init (Allocator* a, size_t max_memory, size_t block_size) {
-  m_panic_assert(block_size >= sizeof(FreeNode), "Cannot initialize Allocator: block_size must be greater than or equal to sizeof(FreeNode) (%llu)", sizeof(FreeNode));
+  m_panic_assert(block_size >= sizeof(FreeNode), "Cannot initialize Allocator: block_size must be greater than or equal to sizeof(FreeNode) (%zu)", sizeof(FreeNode));
   m_panic_assert(max_memory > block_size, "Cannot initialize Allocator: max_memory must be greater than block_size");
 
   a->block_size = block_size;
@@ -130,7 +130,7 @@ bool Allocator_contains_address_range (Allocator* a, void* address, size_t byte_
 #define m_validate_size(alloc) \
   m_panic_assert( \
     alloc->top <= alloc->end, \
-    "Allocator heap overflow: Max memory allocation of %llu bytes exceeded", \
+    "Allocator heap overflow: Max memory allocation of %zu bytes exceeded", \
     Allocator_calc_total_memory(alloc) \
   )
 
@@ -144,7 +144,7 @@ bool Allocator_contains_address_range (Allocator* a, void* address, size_t byte_
 
 inline extern
 void Allocator_dump_free_list (Allocator* a) {
-  printf("Allocator<%llu, %llu>@%p -> free_list: {\n", Allocator_calc_total_memory(a), a->block_size, a->memory);
+  printf("Allocator<%zu, %zu>@%p -> free_list: {\n", Allocator_calc_total_memory(a), a->block_size, a->memory);
 
   FreeNode* fn = a->free_list;
 
@@ -152,7 +152,7 @@ void Allocator_dump_free_list (Allocator* a) {
 
   while (fn != NULL) {
     printf(
-      "  %llu : %p : %llu %s (%llu bytes)\n",
+      "  %zu : %p : %zu %s (%zu bytes)\n",
       i ++,
       fn,
       fn->length,

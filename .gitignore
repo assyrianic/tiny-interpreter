@@ -1,4 +1,6 @@
+build/main
 build/*.obj
+build/*.o
 build/*.exe
 build/*.ilk
 build/*.pdb

@@ -121,7 +121,7 @@ namespace ti {
 
     Labelable ()
     : is_label(false)
-    , address(NULL)
+    , address(0)
     { }
 
     Labelable (uint64_t in_address)
@@ -325,14 +325,18 @@ namespace ti {
           return ((Labelable*) &NO_OP)->encode(encoder, next_address, label_addresses, true);
         
         case Instruction::LIT4: case Instruction::LIT2: case Instruction::LIT1: {
+          using L32 = Literal<uint32_t>;
+          using L16 = Literal<uint16_t>;
+          using L8 = Literal<uint8_t>;
+
           encoder->encode_value(&NO_OP, 1);
 
           if (type == Instruction::LIT4) {
-            encoder->encode_value(&NO_OP + offsetof(Literal<uint32_t>, value), 4);
+            encoder->encode_value(&NO_OP + offsetof(L32, value), 4);
           } else if (type == Instruction::LIT2) {
-            encoder->encode_value(&NO_OP + offsetof(Literal<uint16_t>, value), 2);
+            encoder->encode_value(&NO_OP + offsetof(L16, value), 2);
           } else if (type == Instruction::LIT1) {
-            encoder->encode_value(&NO_OP + offsetof(Literal<uint8_t>, value), 1);
+            encoder->encode_value(&NO_OP + offsetof(L8, value), 1);
           }
         } return;
           
@@ -402,7 +406,7 @@ namespace ti {
     : type(Instruction::LABEL)
     {
       size_t len = strlen(in_label_name) + 1;
-      m_panic_assert(len <= MAX_LABEL_LENGTH, "Cannot create label with len %llu, max is %u", len, MAX_LABEL_LENGTH);
+      m_panic_assert(len <= MAX_LABEL_LENGTH, "Cannot create label with len %zu, max is %u", len, MAX_LABEL_LENGTH);
       memcpy(LABEL.data, in_label_name, len);
     }
 

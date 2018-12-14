@@ -22,7 +22,7 @@ namespace Internal {
 
 
 struct TimingResult {
-  uint64_t count = 0;
+  size_t count = 0;
   double times [Internal::TEST_TIME_MAX_COUNT] = { };
   double min_time = INFINITY;
   double max_time = -INFINITY;
@@ -31,12 +31,12 @@ struct TimingResult {
 
   void print (int64_t max_count = -1) const {
     if (max_count == -1) max_count = this->count;
-    max_count = min_num((uint64_t) max_count, (uint64_t) count, Internal::TEST_TIME_MAX_COUNT);
+    max_count = min_num((size_t) max_count, (size_t) count, Internal::TEST_TIME_MAX_COUNT);
     printf(
-      "{ count: %llu, min_time: %.6f, max_time: %.6f, average_time: %.6f, time list (Showing %llu/%llu): { ",
+      "{ count: %zu, min_time: %.6f, max_time: %.6f, average_time: %.6f, time list (Showing %zu/%zu): { ",
       this->count, this->min_time, this->max_time, this->average_time, max_count, this->count
     );
-    for (uint64_t i = 0; i < max_count; i ++) {
+    for (size_t i = 0; i < (size_t) max_count; i ++) {
       printf("%.6f", this->times[i]);
       if (i < max_count - 1) printf(", ");
     }
@@ -46,7 +46,7 @@ struct TimingResult {
 
 
 template <typename F, typename C = void(*)(), typename ... A>
-TimingResult test_timing (uint64_t count, double unit, F test_function, C cleanup_function = [](){}, bool cleanup = false, bool cleanup_last = false, A& ... args) {
+TimingResult test_timing (size_t count, double unit, F test_function, C cleanup_function = [](){}, bool cleanup = false, bool cleanup_last = false, A& ... args) {
   // (unit 1000000.0 for microseconds, 1000 for milliseconds, 1 for seconds)
 
   // e.g. this prints ~1.01 because Sleep is inaccurate, the timing however, is on point
@@ -56,10 +56,10 @@ TimingResult test_timing (uint64_t count, double unit, F test_function, C cleanu
   TimingResult result;
   result.count = min_num(count, Internal::TEST_TIME_MAX_COUNT);
 
-  for (uint64_t i = 0; i < result.count; i ++) {
+  for (size_t i = 0; i < result.count; i ++) {
     clock_t t1, t2;
 
-    printf("Performing timing test %llu / %llu\n", i + 1, result.count);
+    printf("Performing timing test %zu / %zu\n", i + 1, result.count);
     
     t1 = clock();
 

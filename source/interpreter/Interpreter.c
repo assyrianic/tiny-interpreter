@@ -3,8 +3,13 @@
 
 
 #ifdef TI_SAFE_MODE
-  #define m_safemode_error(fmt, ...) m_panic_error(fmt, __VA_ARGS__)
-  #define m_safemode_assert(cond, fmt, ...) m_panic_assert(cond, fmt, __VA_ARGS__)
+  #ifdef _WIN32
+    #define m_safemode_error(fmt, ...) m_panic_error(fmt, __VA_ARGS__)
+    #define m_safemode_assert(cond, fmt, ...) m_panic_assert(cond, fmt, __VA_ARGS__)
+  #else
+    #define m_safemode_error(fmt, ...) m_panic_error(fmt, ##__VA_ARGS__)
+    #define m_safemode_assert(cond, fmt, ...) m_panic_assert(cond, fmt, ##__VA_ARGS__)
+  #endif
 #else
   #define m_safemode_error(fmt, ...)
   #define m_safemode_assert(cond, fmt, ...)
@@ -12,7 +17,11 @@
 
 
 #ifdef TI_DEBUG_MODE
-  #define m_debug_message(fmt, ...) { printf(fmt, __VA_ARGS__); putchar('\n'); }
+  #ifdef _WIN32
+    #define m_debug_message(fmt, ...) { printf(fmt, __VA_ARGS__); putchar('\n'); }
+  #else
+    #define m_debug_message(fmt, ...) { printf(fmt, ##__VA_ARGS__); putchar('\n'); }
+  #endif
 #else
   #define m_debug_message(fmt, ...)
 #endif
@@ -237,8 +246,8 @@ uint8_t INSTRUCTION_DATA_SIZES [INSTRUCTION_COUNT] = {
 #define m_validate_ip(i) \
   m_safemode_assert( \
     i->ip >= i->instructions && i->ip < i->max_instruction_address, \
-    "Cannot execute: Instruction address 0x%016llx is out of range (0x%016llx -> 0x%016llx)", \
-    (uint64_t) i->ip, (uint64_t) i->instructions, (uint64_t) i->max_instruction_address \
+    "Cannot execute: Instruction address %p is out of range (%p -> %p)", \
+     i->ip,  i->instructions,  i->max_instruction_address \
   )
 
 
@@ -401,7 +410,7 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* l = Interpreter_advance(i, 8);
     *r = *l;
 
-    m_debug_message("LIT8 %s, 0x%016llx", REGISTER_NAMES[*m], *r);
+    m_debug_message("LIT8 %s, 0x%016zux", REGISTER_NAMES[*m], *r);
   } DISPATCH;
 
   LIT4: {
@@ -495,7 +504,7 @@ void Interpreter_run (Interpreter* i) {
 
     *ra = *rb;
 
-    m_debug_message("MOV8 %s, %s (0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
+    m_debug_message("MOV8 %s, %s (0x%016zux)", REGISTER_NAMES[*ma], REGISTER_NAMES[*ma], *ra);
   } DISPATCH;
 
   MOV4: {
@@ -556,7 +565,7 @@ void Interpreter_run (Interpreter* i) {
 
     uint64_t o = *ra + *rb;
 
-    m_debug_message("ADD8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    m_debug_message("ADD8 %s (0x%016zux), %s (0x%016zux) (=0x%016zux)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
     *ra = o;
   } DISPATCH;
@@ -625,7 +634,7 @@ void Interpreter_run (Interpreter* i) {
 
     uint64_t o = *ra - *rb;
 
-    m_debug_message("SUB8 %s (0x%016llx), %s (0x%016llx) (=0x%016llx)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
+    m_debug_message("SUB8 %s (0x%016zux), %s (0x%016zux) (=0x%016zux)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*ma], *rb, o);
 
     *ra = o;
   } DISPATCH;
@@ -696,7 +705,7 @@ void Interpreter_run (Interpreter* i) {
     else if (*ra > *rb) i->cmp = GT;
     else i->cmp = EQ;
 
-    m_debug_message("CMP8 %s (0x%016llx), %s (0x%016llx) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
+    m_debug_message("CMP8 %s (0x%016zux), %s (0x%016zux) (=%s)", REGISTER_NAMES[*ma], *ra, REGISTER_NAMES[*mb], *rb, m_comparison_name(i->cmp));
   } DISPATCH;
 
   CMP4: {
@@ -758,7 +767,7 @@ void Interpreter_run (Interpreter* i) {
 
     Interpreter_advance(i, *j);
 
-    m_debug_message("JMP %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+    m_debug_message("JMP %zd (%p -> %p)", *j, o_ip, i->ip);
   } DISPATCH;
   
   JEQ: {
@@ -769,7 +778,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JEQ %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JEQ %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
   
@@ -781,7 +790,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JNE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JNE %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
   
@@ -793,7 +802,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JGE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JGE %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
   
@@ -805,7 +814,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JLE %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JLE %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
   
@@ -817,7 +826,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JGT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JGT %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
   
@@ -829,7 +838,7 @@ void Interpreter_run (Interpreter* i) {
 
       Interpreter_advance(i, *j);
 
-      m_debug_message("JLT %lld (%lld -> %lld)", *j, (uint64_t) o_ip, (uint64_t) i->ip);
+      m_debug_message("JLT %zd (%p -> %p)", *j, o_ip, i->ip);
     }
   } DISPATCH;
 
@@ -840,7 +849,7 @@ void Interpreter_run (Interpreter* i) {
     
     uint64_t* r = i->op_registers + *m;
 
-    printf("%s value: 0x%016llx\n", REGISTER_NAMES[*m], *r);
+    printf("%s value: 0x%016zux\n", REGISTER_NAMES[*m], *r);
   } DISPATCH;
 
   PRINT4: {
@@ -893,7 +902,7 @@ void Interpreter_run (Interpreter* i) {
 
     *ra = *mem;
 
-    m_debug_message("LOAD8 %s, %s + %lld (=0x%016llx)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+    m_debug_message("LOAD8 %s, %s + %zd (=0x%016zux)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
   } DISPATCH;
 
   LOAD4: {
@@ -918,7 +927,7 @@ void Interpreter_run (Interpreter* i) {
 
     *ra = *mem;
 
-    m_debug_message("LOAD4 %s, %s + %lld (=0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+    m_debug_message("LOAD4 %s, %s + %zd (=0x%08x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
   } DISPATCH;
 
   LOAD2: {
@@ -943,7 +952,7 @@ void Interpreter_run (Interpreter* i) {
 
     *ra = *mem;
 
-    m_debug_message("LOAD2 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+    m_debug_message("LOAD2 %s, %s + %zd (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
   } DISPATCH;
 
   LOAD1: {
@@ -968,7 +977,7 @@ void Interpreter_run (Interpreter* i) {
 
     *ra = *mem;
 
-    m_debug_message("LOAD1 %s, %s + %lld (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
+    m_debug_message("LOAD1 %s, %s + %zd (=0x%04x)", REGISTER_NAMES[*ma], REGISTER_NAMES[*mb], *of, *ra);
   } DISPATCH;
 
 
@@ -995,7 +1004,7 @@ void Interpreter_run (Interpreter* i) {
 
     *mem = *rb;
 
-    m_debug_message("STORE8 %s + %lld, %s (=0x%016llx)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+    m_debug_message("STORE8 %s + %zd, %s (=0x%016zux)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
   } DISPATCH;
 
   STORE4: {
@@ -1021,7 +1030,7 @@ void Interpreter_run (Interpreter* i) {
 
     *mem = *rb;
 
-    m_debug_message("STORE4 %s + %lld, %s (=0x%08x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+    m_debug_message("STORE4 %s + %zd, %s (=0x%08x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
   } DISPATCH;
 
   STORE2: {
@@ -1047,7 +1056,7 @@ void Interpreter_run (Interpreter* i) {
 
     *mem = *rb;
 
-    m_debug_message("STORE2 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+    m_debug_message("STORE2 %s + %zd, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
   } DISPATCH;
 
   STORE1: {
@@ -1073,7 +1082,7 @@ void Interpreter_run (Interpreter* i) {
 
     *mem = *rb;
 
-    m_debug_message("STORE1 %s + %lld, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
+    m_debug_message("STORE1 %s + %zd, %s (=0x%04x)", REGISTER_NAMES[*ma], *of, REGISTER_NAMES[*mb], *mem);
   } DISPATCH;
 
 
@@ -1084,12 +1093,12 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte value from stack of size %zu", (size_t) *rsp - (size_t) i->stack);
     
     *rsp = *rsp - 8;
     *r = *(uint64_t*) *rsp;
 
-    m_debug_message("POP8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+    m_debug_message("POP8 %s (=0x%016zux) (RSP 0x%016zux)", REGISTER_NAMES[*m], *r, (size_t) *rsp);
   } DISPATCH;
 
   POP4: {
@@ -1099,12 +1108,12 @@ void Interpreter_run (Interpreter* i) {
     uint32_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 4 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 4 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 4 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 4 byte value from stack of size %zu", (size_t) *rsp - (size_t) i->stack);
     
     *rsp = *rsp - 4;
     *r = *(uint32_t*) *rsp;
 
-    m_debug_message("POP4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+    m_debug_message("POP4 %s (=0x%08x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *r, (size_t) *rsp);
   } DISPATCH;
 
   POP2: {
@@ -1114,12 +1123,12 @@ void Interpreter_run (Interpreter* i) {
     uint16_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 2 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 2 byte value from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 2 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 2 byte value from stack of size %zu", (size_t) *rsp - (size_t) i->stack);
     
     *rsp = *rsp - 2;
     *r = *(uint16_t*) *rsp;
 
-    m_debug_message("POP2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+    m_debug_message("POP2 %s (=0x%04x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *r, (size_t) *rsp);
   } DISPATCH;
 
   POP1: {
@@ -1134,7 +1143,7 @@ void Interpreter_run (Interpreter* i) {
     *rsp = *rsp - 1;
     *r = **rsp;
 
-    m_debug_message("POP1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *r, (uint64_t) *rsp);
+    m_debug_message("POP1 %s (=0x%02x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *r, (size_t) *rsp);
   } DISPATCH;
 
 
@@ -1145,14 +1154,14 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte value to stack of size %zu / %zu", (size_t) *rsp - (size_t) i->stack, (size_t) i->max_stack_address);
     
     uint64_t* s = *rsp;
     *rsp = *rsp + 8;
 
     *s = *r;
 
-    m_debug_message("PUSH8 %s (=0x%016llx) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+    m_debug_message("PUSH8 %s (=0x%016zux) (RSP 0x%016zux)", REGISTER_NAMES[*m], *s, (size_t) *rsp);
   } DISPATCH;
 
   PUSH4: {
@@ -1162,14 +1171,14 @@ void Interpreter_run (Interpreter* i) {
     uint32_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 4 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 4 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 4 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 4 byte value to stack of size %zu / %zu", (size_t) *rsp - (size_t) i->stack, (size_t) i->max_stack_address);
     
     uint32_t* s = *rsp;
     *rsp = *rsp + 4;
 
     *s = *r;
 
-    m_debug_message("PUSH4 %s (=0x%08x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+    m_debug_message("PUSH4 %s (=0x%08x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *s, (size_t) *rsp);
   } DISPATCH;
 
   PUSH2: {
@@ -1179,14 +1188,14 @@ void Interpreter_run (Interpreter* i) {
     uint16_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 2 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 2 byte value to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 2 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 2 byte value to stack of size %zu / %zu", (size_t) *rsp - (size_t) i->stack, (size_t) i->max_stack_address);
     
     uint16_t* s = *rsp;
     *rsp = *rsp + 2;
 
     *s = *r;
 
-    m_debug_message("PUSH2 %s (=0x%04x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+    m_debug_message("PUSH2 %s (=0x%04x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *s, (size_t) *rsp);
   } DISPATCH;
 
   PUSH1: {
@@ -1196,14 +1205,14 @@ void Interpreter_run (Interpreter* i) {
     uint8_t* r = i->op_registers + *m;
 
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp < i->max_stack_address - 1 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 1 byte value to stack of max size %llu", (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp < i->max_stack_address - 1 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 1 byte value to stack of max size %zu", (size_t) i->max_stack_address);
     
     uint8_t* s = *rsp;
     *rsp = *rsp + 1;
 
     *s = *r;
 
-    m_debug_message("PUSH1 %s (=0x%02x) (RSP 0x%016llx)", REGISTER_NAMES[*m], *s, (uint64_t) *rsp);
+    m_debug_message("PUSH1 %s (=0x%02x) (RSP 0x%016zux)", REGISTER_NAMES[*m], *s, (size_t) *rsp);
   } DISPATCH;
 
 
@@ -1211,22 +1220,22 @@ void Interpreter_run (Interpreter* i) {
     uint64_t* a = Interpreter_advance(i, 8);
     
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp <= i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte return address to stack of size %llu / %llu", *rsp - i->stack, (uint64_t) i->max_stack_address);
+    m_safemode_assert(*rsp <= i->max_stack_address - 8 && *rsp >= i->stack, "Stack overflow / Invalid RSP value: Cannot push 8 byte return address to stack of size %zu / %zu", (size_t) *rsp - (size_t) i->stack, (size_t) i->max_stack_address);
 
-    uint64_t* s = *rsp;
+    uint8_t** s = *rsp;
     *rsp = *rsp + 8;
-    *s = (uint64_t) i->ip;
+    *s = i->ip;
 
     i->ip = i->instructions + *a;
 
     m_validate_ip(i);
 
-    m_debug_message("CALL %llu (from %llu)", (uint64_t) i->ip, *s);
+    m_debug_message("CALL %p (from %p)", i->ip, *s);
   } DISPATCH;
 
   RET: {
     uint8_t** rsp = i->op_registers + RSP;
-    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte return address from stack of size %llu", *rsp - i->stack);
+    m_safemode_assert(*rsp >= i->stack + 8 && *rsp <= i->max_stack_address, "Stack underflow / Invalid RSP value: Cannot pop 8 byte return address from stack of size %zu", (size_t) *rsp - (size_t) i->stack);
 
     *rsp = *rsp - 8;
     uint8_t** a = *rsp;
@@ -1237,7 +1246,7 @@ void Interpreter_run (Interpreter* i) {
 
     m_validate_ip(i);
 
-    m_debug_message("RET %llu (from %llu)", (uint64_t) i->ip, (uint64_t) o_ip);
+    m_debug_message("RET %p (from %p)", i->ip, o_ip);
   } DISPATCH;
 
   HALT: return;
