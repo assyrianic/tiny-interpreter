@@ -63,8 +63,11 @@ int main (int argc, char** args) {
 
   
   I.run();
-  printf("fib_i(%d) = %zu\n", N, *(size_t*) I.op_registers + RAX);
-  printf("fib_s(%d) = %d\n", N, fib_s(N, (void*) fib_s));
+  uint64_t fi = *(uint64_t*) I.op_registers + RAX;
+  uint64_t fs = fib_s(N, (void*) fib_s);
+  printf("fib_i(%d) = %zu\n", N, fi);
+  printf("fib_s(%d) = %zu\n", N, fs);
+  m_panic_assert(fi == fs, "Bad result, expected %zu, not %zu", fs, fi);
   
   
   // printf("Baseline speed test:\n");
