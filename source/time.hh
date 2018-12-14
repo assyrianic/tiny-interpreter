@@ -1,9 +1,7 @@
-#pragma once
-
-
+#include <ctime>
 #include <cstdint>
 #include <cmath>
-#include "windows.h"
+#include <cstdio>
 
 
 template <typename T, typename ... A>
@@ -16,10 +14,12 @@ T min_num (T arg0, A ... args) {
   return min;
 }
 
+
 namespace Internal {
   static constexpr
   uint64_t TEST_TIME_MAX_COUNT = 1024;
 }
+
 
 struct TimingResult {
   uint64_t count = 0;
@@ -44,6 +44,7 @@ struct TimingResult {
   }
 };
 
+
 template <typename F, typename C = void(*)(), typename ... A>
 TimingResult test_timing (uint64_t count, double unit, F test_function, C cleanup_function = [](){}, bool cleanup = false, bool cleanup_last = false, A& ... args) {
   // (unit 1000000.0 for microseconds, 1000 for milliseconds, 1 for seconds)
@@ -51,29 +52,27 @@ TimingResult test_timing (uint64_t count, double unit, F test_function, C cleanu
   // e.g. this prints ~1.01 because Sleep is inaccurate, the timing however, is on point
   // test_timing(1, 1.0, [](){ Sleep(1000); }).print(0);
 
-  LARGE_INTEGER frequency;
-  QueryPerformanceFrequency(&frequency);
 
   TimingResult result;
   result.count = min_num(count, Internal::TEST_TIME_MAX_COUNT);
 
   for (uint64_t i = 0; i < result.count; i ++) {
-    LARGE_INTEGER t1, t2;
+    clock_t t1, t2;
 
     printf("Performing timing test %llu / %llu\n", i + 1, result.count);
     
-    QueryPerformanceCounter(&t1);
+    t1 = clock();
 
     test_function(args ...);
 
-    QueryPerformanceCounter(&t2);
+    t2 = clock();
 
     if (cleanup) {
       if (cleanup_last || i < result.count - 1) cleanup_function();
     }
 
-    // convert to milliseconds
-    double iteration_time = (t2.QuadPart - t1.QuadPart) * unit / frequency.QuadPart;
+    // convert to unit
+    double iteration_time = ((t2 - t1) / (double) CLOCKS_PER_SEC) * unit;
 
     result.times[i] = iteration_time;
     result.total_time += iteration_time;
