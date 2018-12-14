@@ -68,13 +68,13 @@ int main (int argc, char** args) {
   
   
   // printf("Baseline speed test:\n");
-  // TimingResult timing_result_s = test_timing(10, 1000, [&] () { fib_s(N, (void*) fib_s); });
+  // TimingResult timing_result_s = test_timing(10, 1, [&] () { fib_s(N, (void*) fib_s); });
   // printf("Baseline Timing result: "); timing_result_s.print(10); putchar('\n');
 
 
   I.clear();
   printf("Interpreter speed test:\n");
-  TimingResult timing_result_i = test_timing(10, 1000, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
+  TimingResult timing_result_i = test_timing(10, 1, [&] () { I.run(); }, [&] () { I.clear(); }, true, false);
   printf("Interpreter Timing result: "); timing_result_i.print(10); putchar('\n');
 
 
